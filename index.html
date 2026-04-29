@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+<meta name="apple-mobile-web-app-title" content="JIPMER"/>
+<title>JIPMER · Batch C</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+:root{
+  --bg:#070b14;--card:rgba(255,255,255,0.025);--border:rgba(255,255,255,0.07);
+  --muted:#475569;--dim:#334155;--text:#f1f5f9;--sub:#94a3b8;
+  --indigo:#6366f1;--indigo-bg:rgba(99,102,241,0.15);
+  --green:#22c55e;--green-bg:rgba(34,197,94,0.15);
+  --amber:#f59e0b;--amber-bg:rgba(245,158,11,0.15);
+  --red:#ef4444;--red-bg:rgba(239,68,68,0.15);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Mono','Fira Mono','Courier New',monospace;overflow-x:hidden}
+body{padding-bottom:env(safe-area-inset-bottom)}
+body::before{content:'';position:fixed;inset:0;z-index:0;
+  background-image:linear-gradient(rgba(99,102,241,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.04) 1px,transparent 1px);
+  background-size:40px 40px;pointer-events:none}
+body::after{content:'';position:fixed;top:-120px;right:-120px;width:400px;height:400px;border-radius:50%;
+  background:radial-gradient(circle,rgba(99,102,241,0.12) 0%,transparent 70%);pointer-events:none;z-index:0}
+#app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:52px 16px 100px;min-height:100vh}
+.header{margin-bottom:22px}
+.badge-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite;flex-shrink:0}
+.badge-text{font-size:10px;letter-spacing:3px;color:var(--indigo);text-transform:uppercase}
+.clock{font-size:34px;font-weight:700;letter-spacing:-1px;color:var(--text)}
+.date-lbl{font-size:13px;color:var(--muted);margin-top:3px}
+.tabs{display:flex;gap:4px;margin-bottom:20px;background:rgba(255,255,255,0.03);border-radius:10px;padding:4px;border:1px solid var(--border)}
+.tab{flex:1;padding:9px 4px;border-radius:7px;border:none;cursor:pointer;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-family:inherit;transition:all .2s;background:transparent;color:var(--muted);border-bottom:1px solid transparent}
+.tab.on{background:rgba(99,102,241,0.22);color:#a5b4fc;border-bottom-color:var(--indigo)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
+.card-lbl{font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:12px}
+.big{font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
+.med{font-size:17px;font-weight:600;color:var(--text)}
+.sm{font-size:12px;color:var(--muted);margin-top:4px}
+.row{display:flex;justify-content:space-between;align-items:center}
+.track{height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-top:10px}
+.fill{height:100%;border-radius:4px;transition:width 1s linear}
+.pct-lbl{font-size:11px;color:var(--muted);margin-top:6px}
+.pill{font-size:10px;padding:3px 9px;border-radius:12px;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;border:1px solid}
+.slot{padding:14px 16px;border-radius:12px;margin-bottom:8px;border:1px solid var(--border);background:rgba(255,255,255,0.02);position:relative;overflow:hidden;transition:all .3s}
+.slot.now{border-color:var(--indigo);background:var(--indigo-bg)}
+.slot.past{opacity:.38}
+.slot-accent{position:absolute;left:0;top:0;bottom:0;width:3px;display:none}
+.slot.now .slot-accent{display:block}
+.slot-name{font-size:16px;font-weight:600;color:var(--sub)}
+.slot.now .slot-name{color:var(--text)}
+.slot-time{font-size:11px;color:var(--muted);margin-top:3px}
+.prow{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02);transition:all .3s}
+.prow.active{border-color:var(--indigo);background:var(--indigo-bg)}
+.prow.past{opacity:.35}
+.prow.exam{border-color:var(--red);background:var(--red-bg)}
+.prow.vac{border-color:var(--amber);background:var(--amber-bg)}
+.pdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.pinfo{flex:1;min-width:0}
+.pname{font-size:14px;font-weight:500;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow.active .pname,.prow.exam .pname,.prow.vac .pname{font-weight:700;color:var(--text)}
+.pdates{font-size:10px;color:var(--muted);margin-top:2px}
+.pstatus{font-size:11px;color:var(--muted);flex-shrink:0;text-align:right}
+.prow.active .pstatus{color:#a5b4fc}
+.prow.exam .pstatus{color:#fca5a5}
+.prow.vac .pstatus{color:#fcd34d}
+.muted-txt{color:var(--muted);font-size:15px}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="header">
+    <div class="badge-row">
+      <div class="live-dot"></div>
+      <span class="badge-text">JIPMER Karaikal · Batch C · VI Sem</span>
+    </div>
+    <div class="clock" id="clk">--:--:--</div>
+    <div class="date-lbl" id="dlbl">Loading…</div>
+  </div>
+  <div class="tabs">
+    <button class="tab on" onclick="go('now')">Right Now</button>
+    <button class="tab"    onclick="go('today')">Today</button>
+    <button class="tab"    onclick="go('postings')">Postings</button>
+  </div>
+  <div id="content"></div>
+</div>
+<script>
+/* ─────────────────────────────────────────────────────────────
+   THEORY SCHEDULE  (times in decimal hours)
+   • Clinics end at 12:00
+   • Lunch break 13:00 – 14:00 (shown as a break row)
+   • No slot on Mon/Fri after 16:00
+   • Saturday ends at 13:00
+───────────────────────────────────────────────────────────── */
+const TH = {
+  1:[ // Monday
+    {s:9,  e:12, sub:"Clinics",           type:"clinic"},
+    {s:12, e:13, sub:"ENT",               type:"theory"},
+    {s:14, e:15, sub:"Medicine",          type:"theory"},
+    {s:15, e:16, sub:"Ophthalmology",     type:"theory"},
+  ],
+  2:[ // Tuesday
+    {s:9,  e:12, sub:"Clinics",           type:"clinic"},
+    {s:12, e:13, sub:"PSM",               type:"theory"},
+    {s:14, e:17, sub:"FHAP",              type:"theory"},
+  ],
+  3:[ // Wednesday
+    {s:9,  e:12, sub:"Clinics",           type:"clinic"},
+    {s:12, e:13, sub:"OBG",               type:"theory"},
+    {s:14, e:15, sub:"Psychiatry",        type:"theory"},
+    {s:15, e:17, sub:"Modular Teaching",  type:"modular"},
+  ],
+  4:[ // Thursday
+    {s:9,  e:12, sub:"Clinics",           type:"clinic"},
+    {s:12, e:13, sub:"Orthopaedics",      type:"theory"},
+    {s:14, e:15, sub:"Dermatology",       type:"theory"},
+    {s:15, e:17, sub:"Modular Teaching",  type:"modular"},
+  ],
+  5:[ // Friday
+    {s:9,  e:12, sub:"Clinics",           type:"clinic"},
+    {s:12, e:13, sub:"Surgery",           type:"theory"},
+    {s:14, e:15, sub:"OBG",               type:"theory"},
+    {s:15, e:16, sub:"Ophthalmology",     type:"theory"},
+  ],
+  6:[ // Saturday
+    {s:9,  e:12, sub:"Clinics",           type:"clinic"},
+    {s:12, e:13, sub:"Pulmonary Medicine",type:"theory"},
+  ],
+};
+
+/* ─────────────────────────────────────────────────────────────
+   BATCH C — CLINICAL POSTINGS  (all 45 weeks)
+   type: "posting" | "exam" | "vacation"
+───────────────────────────────────────────────────────────── */
+const CP = [
+  {s:"2026-04-20",e:"2026-05-03",sub:"Pulmonary Medicine",                    type:"posting"},
+  {s:"2026-05-04",e:"2026-05-17",sub:"Medicine",                              type:"posting"},
+  {s:"2026-05-18",e:"2026-05-31",sub:"Psychiatry",                            type:"posting"},
+  {s:"2026-06-01",e:"2026-06-14",sub:"ENT",                                   type:"posting"},
+  {s:"2026-06-15",e:"2026-06-28",sub:"Surgery",                               type:"posting"},
+  {s:"2026-06-29",e:"2026-07-12",sub:"Surgery",                               type:"posting"},
+  {s:"2026-07-13",e:"2026-07-26",sub:"Dermatology",                           type:"posting"},
+  {s:"2026-07-27",e:"2026-08-02",sub:"Dermatology",                           type:"posting"},
+  {s:"2026-08-03",e:"2026-08-09",sub:"IA-1 Exam",                             type:"exam"},
+  {s:"2026-08-10",e:"2026-08-16",sub:"Dermatology",                           type:"posting"},
+  {s:"2026-08-17",e:"2026-08-30",sub:"Ophthalmology",                         type:"posting"},
+  {s:"2026-08-31",e:"2026-09-13",sub:"Ophthalmology",                         type:"posting"},
+  {s:"2026-09-14",e:"2026-09-27",sub:"Ophthalmology",                         type:"posting"},
+  {s:"2026-09-28",e:"2026-10-11",sub:"Community Medicine",                    type:"posting"},
+  {s:"2026-10-12",e:"2026-10-25",sub:"Community Medicine",                    type:"posting"},
+  {s:"2026-10-26",e:"2026-11-01",sub:"IA-2",                                  type:"exam"},
+  {s:"2026-11-02",e:"2026-11-08",sub:"Community Medicine",                    type:"posting"},
+  {s:"2026-11-09",e:"2026-11-15",sub:"IA-2 Exam",                             type:"exam"},
+  {s:"2026-11-16",e:"2026-11-22",sub:"ENT",                                   type:"posting"},
+  {s:"2026-11-23",e:"2026-12-06",sub:"ENT",                                   type:"posting"},
+  {s:"2026-12-07",e:"2026-12-20",sub:"Ophthalmology",                         type:"posting"},
+  {s:"2026-12-21",e:"2026-12-27",sub:"Vacation 🎉",                           type:"vacation"},
+  {s:"2026-12-28",e:"2027-01-10",sub:"Casualty",                              type:"posting"},
+  {s:"2027-01-11",e:"2027-01-21",sub:"Radiodiagnosis (Wk1) / Dentistry (Wk2)",type:"posting"},
+  {s:"2027-01-22",e:"2027-01-31",sub:"IA-3",                                  type:"exam"},
+  {s:"2027-02-01",e:"2027-02-14",sub:"Ophthalmology",                         type:"posting"},
+  {s:"2027-02-15",e:"2027-02-28",sub:"Ophthalmology — Send Up Exam",          type:"exam"},
+];
+
+const DAYS   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+
+const C = {
+  clinic:  {bg:"rgba(34,197,94,.14)",  bd:"#22c55e", tx:"#86efac", dot:"#22c55e"},
+  theory:  {bg:"rgba(99,102,241,.14)", bd:"#6366f1", tx:"#a5b4fc", dot:"#6366f1"},
+  modular: {bg:"rgba(245,158,11,.14)", bd:"#f59e0b", tx:"#fcd34d", dot:"#f59e0b"},
+};
+
+function pd(str){const[y,m,d]=str.split("-").map(Number);return new Date(y,m-1,d);}
+function tod(n){return new Date(n.getFullYear(),n.getMonth(),n.getDate());}
+function fh(h){return`${h>12?h-12:h===0?12:h}:00 ${h>=12?"PM":"AM"}`;}
+function daysUntil(s,n){return Math.round((pd(s)-tod(n))/86400000);}
+function postPct(p,n){
+  const tot=(pd(p.e)-pd(p.s))/86400000+1;
+  const done=(tod(n)-pd(p.s))/86400000+1;
+  return Math.min(100,Math.max(0,Math.round(done/tot*100)));
+}
+function getActive(n){const t=tod(n);return CP.find(p=>t>=pd(p.s)&&t<=pd(p.e));}
+function getNext(n){const t=tod(n);return CP.find(p=>pd(p.s)>t);}
+
+let tab="now";
+function go(t){
+  tab=t;
+  document.querySelectorAll(".tab").forEach((el,i)=>{
+    el.classList.toggle("on",["now","today","postings"][i]===t);
+  });
+  render();
+}
+
+function card(lbl,inner){return`<div class="card"><div class="card-lbl">${lbl}</div>${inner}</div>`;}
+function pill(txt,c){return`<span class="pill" style="background:${c.bg};border-color:${c.bd};color:${c.tx}">${txt}</span>`;}
+
+/* ── RIGHT NOW ── */
+function rNow(n){
+  const dow=n.getDay(),h=n.getHours(),m=n.getMinutes(),cur=h+m/60;
+  const slots=TH[dow]||[];
+  const active=slots.find(s=>cur>=s.s&&cur<s.e);
+  const next=slots.find(s=>s.s>cur);
+  const ap=getActive(n),np=getNext(n);
+  let html="";
+
+  /* current class card */
+  let ci="";
+  if(dow===0){
+    ci=`<div class="muted-txt">Sunday — no classes today 🎉</div>`;
+  } else if(active){
+    const c=C[active.type];
+    const p=Math.round((cur-active.s)/(active.e-active.s)*100);
+    ci=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
+          <div style="width:10px;height:10px;border-radius:50%;background:${c.dot};box-shadow:0 0 8px ${c.dot};flex-shrink:0"></div>
+          <span class="big" style="margin:0">${active.sub}</span>
+        </div>
+        <div class="sm">${fh(active.s)} → ${fh(active.e)}</div>
+        <div class="track"><div class="fill" style="width:${p}%;background:linear-gradient(90deg,${c.dot},${c.tx})"></div></div>
+        <div class="pct-lbl">${p}% through this period</div>`;
+  } else if(h>=13&&h<14){
+    ci=`<div class="muted-txt">🍽 Lunch break (1:00 PM – 2:00 PM)</div>`;
+  } else if(h<9){
+    ci=`<div class="muted-txt">Classes start at 9:00 AM ☀️</div>`;
+  } else if(h>=17||(dow===6&&h>=13)){
+    ci=`<div class="muted-txt">Classes over for today ✓</div>`;
+  } else {
+    ci=`<div class="muted-txt">No class right now</div>`;
+  }
+  html+=card("NOW IN CLASS",ci);
+
+  /* next class */
+  if(next&&dow!==0){
+    const c=C[next.type];
+    const lunchNote=next.s===14?" (after lunch)":"";
+    html+=card("UP NEXT",`<div class="row">
+      <div>
+        <div class="med">${next.sub}</div>
+        <div class="sm">Starts at ${fh(next.s)}${lunchNote}</div>
+      </div>${pill(next.type,c)}</div>`);
+  }
+
+  /* clinical posting */
+  let pi="";
+  if(ap){
+    const isExam=ap.type==="exam",isVac=ap.type==="vacation";
+    const acc=isExam?"#ef4444":isVac?"#f59e0b":"#22c55e";
+    const lit=isExam?"#fca5a5":isVac?"#fcd34d":"#86efac";
+    const p2=postPct(ap,n);
+    pi=`<div class="big">${ap.sub}</div>
+        <div class="sm">${ap.s} → ${ap.e}</div>
+        <div class="track"><div class="fill" style="width:${p2}%;background:linear-gradient(90deg,${acc},${lit})"></div></div>
+        <div class="pct-lbl">${p2}% complete${np?` · Next: ${np.sub} in ${daysUntil(np.s,n)}d`:""}
+        ${isExam?`<br><span style="color:#fca5a5;font-size:11px">⚠️ Exam period — focus!</span>`:""}
+        </div>`;
+  } else {
+    pi=`<div class="muted-txt">No active posting</div>`;
+  }
+  html+=card("CLINICAL POSTING",pi);
+  return html;
+}
+
+/* ── TODAY ── */
+function rToday(n){
+  const dow=n.getDay(),h=n.getHours(),m=n.getMinutes(),cur=h+m/60;
+  const slots=TH[dow]||[];
+  if(dow===0) return card("SUNDAY",`<div class="muted-txt">No classes. Rest up! 🌴</div>`);
+  if(!slots.length) return card("TODAY",`<div class="muted-txt">No schedule</div>`);
+
+  const isLunchNow=cur>=13&&cur<14;
+  const isLunchPast=cur>=14;
+  const hasPM=slots.some(s=>s.s>=14);
+  let html="";
+
+  slots.forEach(sl=>{
+    const isNow=cur>=sl.s&&cur<sl.e;
+    const isPast=cur>=sl.e;
+    const c=C[sl.type];
+    const p=isNow?Math.round((cur-sl.s)/(sl.e-sl.s)*100):0;
+    html+=`<div class="slot ${isNow?"now":""} ${isPast?"past":""}" ${isNow?`style="border-color:${c.bd};background:${c.bg}"`:""}">
+      <div class="slot-accent" style="background:${c.dot};box-shadow:0 0 8px ${c.dot}"></div>
+      <div class="row">
+        <div>
+          <div class="slot-name">${sl.sub}</div>
+          <div class="slot-time">${fh(sl.s)} – ${fh(sl.e)}</div>
+        </div>
+        ${pill(isNow?"● NOW":isPast?"done":sl.type,c)}
+      </div>
+      ${isNow?`<div class="track"><div class="fill" style="width:${p}%;background:linear-gradient(90deg,${c.dot},${c.tx})"></div></div>`:""}
+    </div>`;
+    /* insert lunch row after last 12–13 slot */
+    if(sl.e===13&&hasPM){
+      html+=`<div class="slot ${isLunchNow?"now":""} ${isLunchPast?"past":""}">
+        <div class="row">
+          <div>
+            <div class="slot-name" style="color:var(--muted)">🍽 Lunch Break</div>
+            <div class="slot-time">1:00 PM – 2:00 PM</div>
+          </div>
+          <span class="pill" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.09);color:var(--muted)">break</span>
+        </div>
+      </div>`;
+    }
+  });
+  return html;
+}
+
+/* ── POSTINGS ── */
+function rPostings(n){
+  const t=tod(n),ap=getActive(n);
+  return CP.map(p=>{
+    const isActive=ap&&ap.s===p.s;
+    const isPast=pd(p.e)<t;
+    const isExam=p.type==="exam",isVac=p.type==="vacation";
+    const acc=isExam?"#ef4444":isVac?"#f59e0b":"#6366f1";
+    const dotCol=isPast?"#334155":acc;
+    const days=daysUntil(p.s,n);
+    const status=isActive?"● active":isPast?"done":`in ${days}d`;
+    const cls=isActive?"active":isExam?"exam":isVac?"vac":isPast?"past":"";
+    return`<div class="prow ${cls}">
+      <div class="pdot" style="background:${dotCol};${isActive?`box-shadow:0 0 8px ${acc}`:""}"></div>
+      <div class="pinfo">
+        <div class="pname">${p.sub}</div>
+        <div class="pdates">${p.s} → ${p.e}</div>
+      </div>
+      <div class="pstatus">${status}</div>
+    </div>`;
+  }).join("");
+}
+
+function render(){
+  const n=new Date();
+  const el=document.getElementById("content");
+  if(tab==="now")      el.innerHTML=rNow(n);
+  else if(tab==="today")    el.innerHTML=rToday(n);
+  else                 el.innerHTML=rPostings(n);
+}
+
+function tick(){
+  const n=new Date();
+  document.getElementById("clk").textContent=
+    n.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
+  document.getElementById("dlbl").textContent=
+    `${DAYS[n.getDay()]}, ${n.getDate()} ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
+  render();
+}
+tick();
+setInterval(tick,1000);
+</script>
+</body>
+</html>
