@@ -79,6 +79,7 @@ body::after{content:'';position:fixed;top:-120px;right:-120px;width:400px;height
     </div>
     <div class="clock" id="clk">--:--:--</div>
     <div class="date-lbl" id="dlbl">Loading…</div>
+    <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:4px">Theory · Fourth Floor LH-5</div>
   </div>
   <div class="tabs">
     <button class="tab on" onclick="go('now')">Right Now</button>
@@ -90,17 +91,18 @@ body::after{content:'';position:fixed;top:-120px;right:-120px;width:400px;height
 <script>
 /* ─────────────────────────────────────────────────────────────
    THEORY SCHEDULE  (times in decimal hours)
-   • Clinics end at 12:00
-   • Lunch break 13:00 – 14:00 (shown as a break row)
-   • No slot on Mon/Fri after 16:00
-   • Saturday ends at 13:00
+   Effective 01.06.2026 – 12.09.2026 · Venue: Fourth Floor LH-5
+   • Clinics 09:00–12:00
+   • 12:00–13:00 class slot (subject varies by day)
+   • 13:00–14:00 free period (no scheduled class)
+   • Afternoon slots 14:00 onwards
 ───────────────────────────────────────────────────────────── */
 const TH = {
   1:[ // Monday
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
     {s:12, e:13, sub:"ENT",               type:"theory"},
     {s:14, e:15, sub:"Medicine",          type:"theory"},
-    {s:15, e:16, sub:"Ophthalmology",     type:"theory"},
+    {s:15, e:17, sub:"Modular Teaching",  type:"modular"},
   ],
   2:[ // Tuesday
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
@@ -110,20 +112,21 @@ const TH = {
   3:[ // Wednesday
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
     {s:12, e:13, sub:"OBG",               type:"theory"},
-    {s:14, e:15, sub:"Psychiatry",        type:"theory"},
+    {s:14, e:15, sub:"Dermatology",       type:"theory"},
     {s:15, e:17, sub:"Modular Teaching",  type:"modular"},
   ],
   4:[ // Thursday
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
     {s:12, e:13, sub:"Orthopaedics",      type:"theory"},
-    {s:14, e:15, sub:"Dermatology",       type:"theory"},
-    {s:15, e:17, sub:"Modular Teaching",  type:"modular"},
+    {s:14, e:16, sub:"Modular Teaching",  type:"modular"},
+    {s:16, e:17, sub:"Ophthalmology",     type:"theory"},
   ],
   5:[ // Friday
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
     {s:12, e:13, sub:"Surgery",           type:"theory"},
-    {s:14, e:15, sub:"OBG",               type:"theory"},
+    {s:14, e:15, sub:"Psychiatry",        type:"theory"},
     {s:15, e:16, sub:"Ophthalmology",     type:"theory"},
+    {s:16, e:17, sub:"OBG",              type:"theory"},
   ],
   6:[ // Saturday
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
@@ -221,8 +224,6 @@ function rNow(n){
         <div class="sm">${fh(active.s)} → ${fh(active.e)}</div>
         <div class="track"><div class="fill" style="width:${p}%;background:linear-gradient(90deg,${c.dot},${c.tx})"></div></div>
         <div class="pct-lbl">${p}% through this period</div>`;
-  } else if(h>=13&&h<14){
-    ci=`<div class="muted-txt">🍽 Lunch break (1:00 PM – 2:00 PM)</div>`;
   } else if(h<9){
     ci=`<div class="muted-txt">Classes start at 9:00 AM ☀️</div>`;
   } else if(h>=17||(dow===6&&h>=13)){
@@ -235,11 +236,10 @@ function rNow(n){
   /* next class */
   if(next&&dow!==0){
     const c=C[next.type];
-    const lunchNote=next.s===14?" (after lunch)":"";
     html+=card("UP NEXT",`<div class="row">
       <div>
         <div class="med">${next.sub}</div>
-        <div class="sm">Starts at ${fh(next.s)}${lunchNote}</div>
+        <div class="sm">Starts at ${fh(next.s)}</div>
       </div>${pill(next.type,c)}</div>`);
   }
 
@@ -270,9 +270,6 @@ function rToday(n){
   if(dow===0) return card("SUNDAY",`<div class="muted-txt">No classes. Rest up! 🌴</div>`);
   if(!slots.length) return card("TODAY",`<div class="muted-txt">No schedule</div>`);
 
-  const isLunchNow=cur>=13&&cur<14;
-  const isLunchPast=cur>=14;
-  const hasPM=slots.some(s=>s.s>=14);
   let html="";
 
   slots.forEach(sl=>{
@@ -291,18 +288,6 @@ function rToday(n){
       </div>
       ${isNow?`<div class="track"><div class="fill" style="width:${p}%;background:linear-gradient(90deg,${c.dot},${c.tx})"></div></div>`:""}
     </div>`;
-    /* insert lunch row after last 12–13 slot */
-    if(sl.e===13&&hasPM){
-      html+=`<div class="slot ${isLunchNow?"now":""} ${isLunchPast?"past":""}">
-        <div class="row">
-          <div>
-            <div class="slot-name" style="color:var(--muted)">🍽 Lunch Break</div>
-            <div class="slot-time">1:00 PM – 2:00 PM</div>
-          </div>
-          <span class="pill" style="background:rgba(255,255,255,0.04);border-color:rgba(255,255,255,0.09);color:var(--muted)">break</span>
-        </div>
-      </div>`;
-    }
   });
   return html;
 }
