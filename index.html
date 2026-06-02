@@ -10,63 +10,154 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
-  --bg:#070b14;--card:rgba(255,255,255,0.025);--border:rgba(255,255,255,0.07);
-  --muted:#475569;--dim:#334155;--text:#f1f5f9;--sub:#94a3b8;
-  --indigo:#6366f1;--indigo-bg:rgba(99,102,241,0.15);
-  --green:#22c55e;--green-bg:rgba(34,197,94,0.15);
-  --amber:#f59e0b;--amber-bg:rgba(245,158,11,0.15);
-  --red:#ef4444;--red-bg:rgba(239,68,68,0.15);
+  /* softer dark + high-contrast text */
+  --bg:#15171C;--card:#1E2128;--card2:#252932;
+  --border:rgba(255,255,255,0.10);--border2:rgba(255,255,255,0.16);
+  --text:#E8EAED;--sub:#C4C8CF;--muted:#A0A4AB;--dim:#A0A4AB;
+  /* brightened accents (all pass contrast on dark) */
+  --indigo:#8B93FF;--indigo-bg:rgba(139,147,255,0.18);--indigo-tx:#C7CCFF;
+  --green:#4ADE80;--green-bg:rgba(74,222,128,0.16);--green-tx:#86EFAC;
+  --amber:#FBBF24;--amber-bg:rgba(251,191,36,0.16);--amber-tx:#FCD34D;
+  --red:#F87171;--red-bg:rgba(248,113,113,0.16);--red-tx:#FCA5A5;
 }
-html,body{height:100%;background:var(--bg);color:var(--text);font-family:'DM Mono','Fira Mono','Courier New',monospace;overflow-x:hidden}
+html,body{height:100%;background:var(--bg);color:var(--text);
+  font-family:-apple-system,"SF Pro Text","Inter","Segoe UI",system-ui,sans-serif;
+  font-size:16px;line-height:1.5;overflow-x:hidden;-webkit-font-smoothing:antialiased}
 body{padding-bottom:env(safe-area-inset-bottom)}
 body::before{content:'';position:fixed;inset:0;z-index:0;
-  background-image:linear-gradient(rgba(99,102,241,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(99,102,241,0.04) 1px,transparent 1px);
+  background-image:linear-gradient(rgba(139,147,255,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(139,147,255,0.05) 1px,transparent 1px);
   background-size:40px 40px;pointer-events:none}
 body::after{content:'';position:fixed;top:-120px;right:-120px;width:400px;height:400px;border-radius:50%;
-  background:radial-gradient(circle,rgba(99,102,241,0.12) 0%,transparent 70%);pointer-events:none;z-index:0}
-#app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:52px 16px 100px;min-height:100vh}
-.header{margin-bottom:22px}
+  background:radial-gradient(circle,rgba(139,147,255,0.14) 0%,transparent 70%);pointer-events:none;z-index:0}
+#app{position:relative;z-index:1;max-width:480px;margin:0 auto;padding:52px 16px 110px;min-height:100vh}
+.header{margin-bottom:20px}
 .badge-row{display:flex;align-items:center;gap:8px;margin-bottom:6px}
-.live-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2s infinite;flex-shrink:0}
-.badge-text{font-size:10px;letter-spacing:3px;color:var(--indigo);text-transform:uppercase}
-.clock{font-size:34px;font-weight:700;letter-spacing:-1px;color:var(--text)}
-.date-lbl{font-size:13px;color:var(--muted);margin-top:3px}
-.tabs{display:flex;gap:4px;margin-bottom:20px;background:rgba(255,255,255,0.03);border-radius:10px;padding:4px;border:1px solid var(--border)}
-.tab{flex:1;padding:9px 4px;border-radius:7px;border:none;cursor:pointer;font-size:11px;letter-spacing:1px;text-transform:uppercase;font-family:inherit;transition:all .2s;background:transparent;color:var(--muted);border-bottom:1px solid transparent}
-.tab.on{background:rgba(99,102,241,0.22);color:#a5b4fc;border-bottom-color:var(--indigo)}
-.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px}
-.card-lbl{font-size:10px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;margin-bottom:12px}
-.big{font-size:22px;font-weight:700;color:var(--text);margin-bottom:6px}
-.med{font-size:17px;font-weight:600;color:var(--text)}
-.sm{font-size:12px;color:var(--muted);margin-top:4px}
+.live-dot{width:9px;height:9px;border-radius:50%;background:var(--green);box-shadow:0 0 10px var(--green);animation:blink 2s infinite;flex-shrink:0}
+.badge-text{font-size:11px;letter-spacing:2px;color:var(--indigo-tx);text-transform:uppercase;font-weight:600}
+.clock{font-size:36px;font-weight:800;letter-spacing:-1px;color:var(--text)}
+.date-lbl{font-size:14px;color:var(--sub);margin-top:3px;font-weight:500}
+.venue-lbl{font-size:11px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-top:5px;font-weight:600}
+/* tab bar (scrollable, 44px tap targets) */
+.tabs{display:flex;gap:4px;margin-bottom:20px;background:rgba(255,255,255,0.04);border-radius:12px;padding:4px;border:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{flex:1 0 auto;min-height:44px;padding:0 10px;border-radius:8px;border:none;cursor:pointer;font-size:12px;letter-spacing:.5px;font-weight:600;text-transform:uppercase;font-family:inherit;transition:all .2s;background:transparent;color:var(--muted);white-space:nowrap}
+.tab.on{background:rgba(139,147,255,0.22);color:#D6DAFF}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;margin-bottom:14px}
+.card-lbl{font-size:11px;letter-spacing:1.5px;color:var(--muted);text-transform:uppercase;margin-bottom:12px;font-weight:700}
+.big{font-size:24px;font-weight:800;color:var(--text);margin-bottom:6px}
+.med{font-size:18px;font-weight:700;color:var(--text)}
+.sm{font-size:13px;color:var(--sub);margin-top:4px}
 .row{display:flex;justify-content:space-between;align-items:center}
-.track{height:4px;background:rgba(255,255,255,0.06);border-radius:4px;overflow:hidden;margin-top:10px}
-.fill{height:100%;border-radius:4px;transition:width 1s linear}
-.pct-lbl{font-size:11px;color:var(--muted);margin-top:6px}
-.pill{font-size:10px;padding:3px 9px;border-radius:12px;letter-spacing:1px;text-transform:uppercase;flex-shrink:0;border:1px solid}
-.slot{padding:14px 16px;border-radius:12px;margin-bottom:8px;border:1px solid var(--border);background:rgba(255,255,255,0.02);position:relative;overflow:hidden;transition:all .3s}
+.track{height:6px;background:rgba(255,255,255,0.08);border-radius:6px;overflow:hidden;margin-top:10px}
+.fill{height:100%;border-radius:6px;transition:width 1s linear}
+.pct-lbl{font-size:12px;color:var(--sub);margin-top:6px}
+.pill{font-size:11px;padding:4px 10px;border-radius:12px;letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;border:1px solid;font-weight:700}
+.slot{padding:14px 16px;border-radius:14px;margin-bottom:8px;border:1px solid var(--border);background:rgba(255,255,255,0.03);position:relative;overflow:hidden;transition:all .3s;min-height:44px}
 .slot.now{border-color:var(--indigo);background:var(--indigo-bg)}
-.slot.past{opacity:.38}
+.slot.past{opacity:.6}
 .slot-accent{position:absolute;left:0;top:0;bottom:0;width:3px;display:none}
 .slot.now .slot-accent{display:block}
-.slot-name{font-size:16px;font-weight:600;color:var(--sub)}
+.slot-name{font-size:17px;font-weight:700;color:var(--sub)}
 .slot.now .slot-name{color:var(--text)}
-.slot-time{font-size:11px;color:var(--muted);margin-top:3px}
-.prow{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:10px;margin-bottom:6px;border:1px solid rgba(255,255,255,0.05);background:rgba(255,255,255,0.02);transition:all .3s}
+.slot-time{font-size:12px;color:var(--muted);margin-top:3px;font-weight:500}
+.prow{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;margin-bottom:6px;border:1px solid var(--border);background:rgba(255,255,255,0.03);transition:all .3s;min-height:44px}
 .prow.active{border-color:var(--indigo);background:var(--indigo-bg)}
-.prow.past{opacity:.35}
+.prow.past{opacity:.6}
 .prow.exam{border-color:var(--red);background:var(--red-bg)}
 .prow.vac{border-color:var(--amber);background:var(--amber-bg)}
-.pdot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.pdot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .pinfo{flex:1;min-width:0}
-.pname{font-size:14px;font-weight:500;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.prow.active .pname,.prow.exam .pname,.prow.vac .pname{font-weight:700;color:var(--text)}
-.pdates{font-size:10px;color:var(--muted);margin-top:2px}
-.pstatus{font-size:11px;color:var(--muted);flex-shrink:0;text-align:right}
-.prow.active .pstatus{color:#a5b4fc}
-.prow.exam .pstatus{color:#fca5a5}
-.prow.vac .pstatus{color:#fcd34d}
-.muted-txt{color:var(--muted);font-size:15px}
+.pname{font-size:15px;font-weight:600;color:var(--sub);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prow.active .pname,.prow.exam .pname,.prow.vac .pname{font-weight:800;color:var(--text)}
+.pdates{font-size:11px;color:var(--muted);margin-top:2px}
+.pstatus{font-size:12px;color:var(--sub);flex-shrink:0;text-align:right;font-weight:600}
+.prow.active .pstatus{color:var(--indigo-tx)}
+.prow.exam .pstatus{color:var(--red-tx)}
+.prow.vac .pstatus{color:var(--amber-tx)}
+.muted-txt{color:var(--sub);font-size:16px}
+/* ── WEEK grid ── */
+.daycard{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px;margin-bottom:12px}
+.daycard.today{border-color:var(--indigo);box-shadow:0 0 0 1px var(--indigo)}
+.dayhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.dayname{font-size:16px;font-weight:800;color:var(--text)}
+.daytag{font-size:11px;font-weight:700;color:var(--indigo-tx);text-transform:uppercase;letter-spacing:.5px}
+.cells{display:flex;flex-wrap:wrap;gap:7px}
+.cell{flex:1 1 88px;min-height:56px;border-radius:11px;padding:9px 10px;border:1px solid;display:flex;flex-direction:column;justify-content:center}
+.cell.free{opacity:.5;border-style:dashed}
+.cell-time{font-size:11px;font-weight:700;opacity:.95;margin-bottom:2px}
+.cell-sub{font-size:13px;font-weight:700;line-height:1.25}
+/* ── buttons / inputs ── */
+.btn{min-height:44px;padding:0 16px;border-radius:11px;border:1px solid var(--border2);background:var(--card2);color:var(--text);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn:active{transform:scale(.97)}
+.btn.primary{background:var(--indigo-bg);border-color:var(--indigo);color:#D6DAFF}
+.btn.danger{background:var(--red-bg);border-color:var(--red);color:var(--red-tx)}
+.btn.sm{min-height:38px;padding:0 12px;font-size:13px}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
+.inp{width:100%;min-height:44px;background:#0f1116;border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:inherit;font-size:15px;padding:0 10px;text-align:center}
+.inp:focus{outline:none;border-color:var(--indigo)}
+/* ── attendance ── */
+.banner{background:var(--amber-bg);border:1px solid var(--amber);border-radius:14px;padding:13px 15px;margin-bottom:14px;font-size:14px;color:#FDE9C8;line-height:1.45;font-weight:600}
+.zone{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:14px}
+.zone.a{border-left:4px solid var(--amber)}
+.zone.b{border-left:4px solid var(--green)}
+.zone-title{font-size:16px;font-weight:800;color:var(--text);margin-bottom:3px}
+.zone-sub{font-size:12.5px;color:var(--muted);margin-bottom:14px;font-weight:500}
+.bars{margin:10px 0 4px}
+.barlbl{display:flex;justify-content:space-between;font-size:13px;font-weight:700;margin-bottom:5px}
+.bar{position:relative;height:12px;background:rgba(255,255,255,0.08);border-radius:8px;overflow:hidden}
+.bar-fill{height:100%;border-radius:8px;transition:width .4s}
+.bar-mark{position:absolute;top:-3px;bottom:-3px;width:2px;background:#fff;opacity:.85}
+.bar-mark::after{content:attr(data-l);position:absolute;top:-15px;left:50%;transform:translateX(-50%);font-size:9px;color:var(--muted);white-space:nowrap}
+.subline{display:flex;flex-direction:column;gap:4px;padding:9px 0;border-top:1px solid var(--border)}
+.subline:first-child{border-top:none}
+.subrow{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.subname{font-size:14px;font-weight:700;color:var(--text)}
+.subval{font-size:13px;font-weight:700;flex-shrink:0}
+.minibar{height:8px;background:rgba(255,255,255,0.08);border-radius:6px;overflow:hidden}
+.minibar>div{height:100%;border-radius:6px}
+.editgrid{display:grid;grid-template-columns:1fr;gap:12px}
+.editsub{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:12px}
+.editsub .nm{font-size:14px;font-weight:800;margin-bottom:8px}
+.editfields{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.editfields label{font-size:11px;color:var(--muted);font-weight:700;display:block;margin-bottom:3px}
+/* zone B day rows */
+.bday{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:12px;margin-bottom:10px}
+.bday.today{border-color:var(--indigo);box-shadow:0 0 0 1px var(--indigo)}
+.bday-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px;flex-wrap:wrap;gap:8px}
+.bday-name{font-size:15px;font-weight:800}
+.bday-date{font-size:11px;color:var(--muted);font-weight:600;margin-left:7px}
+.bday-count{font-size:12px;font-weight:700;color:var(--sub);background:rgba(255,255,255,0.06);padding:3px 9px;border-radius:10px}
+.qbtns{display:flex;gap:6px}
+.pchips{display:flex;flex-wrap:wrap;gap:7px}
+.pchip{position:relative;flex:1 1 96px;min-height:60px;border-radius:11px;padding:8px 9px;border:1px solid var(--border2);background:rgba(255,255,255,0.03);color:var(--sub);font-family:inherit;text-align:left;cursor:pointer;transition:all .15s;display:flex;flex-direction:column;justify-content:center;gap:1px}
+.pchip:active{transform:scale(.97)}
+.pchip.unmarked{border-style:dashed;opacity:.85}
+.pchip.present{background:var(--green-bg);border-color:var(--green);color:var(--text)}
+.pchip.absent{background:var(--red-bg);border-color:var(--red);color:var(--text)}
+.pchip.cancelled{background:var(--amber-bg);border-color:var(--amber);color:var(--text)}
+.pchip.free{opacity:.45;border-style:dashed;cursor:default;background:transparent}
+.pc-dot{position:absolute;top:7px;right:8px;width:9px;height:9px;border-radius:50%}
+.pchip.present .pc-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.pchip.absent .pc-dot{background:var(--red);box-shadow:0 0 6px var(--red)}
+.pchip.cancelled .pc-dot{background:var(--amber);box-shadow:0 0 6px var(--amber)}
+.pc-sub{font-size:13px;font-weight:800;line-height:1.2;padding-right:12px}
+.pc-time{font-size:10.5px;color:var(--muted);font-weight:600}
+.pc-status{font-size:11px;font-weight:700;margin-top:2px}
+.pchip.present .pc-status{color:var(--green-tx)}
+.pchip.absent .pc-status{color:var(--red-tx)}
+.pchip.cancelled .pc-status{color:var(--amber-tx)}
+.pchip.unmarked .pc-status{color:var(--muted)}
+.statbig{display:flex;gap:12px;margin-bottom:6px}
+.statbox{flex:1;background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:13px}
+.statnum{font-size:30px;font-weight:800;line-height:1}
+.statname{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px}
+.statden{font-size:12px;color:var(--sub);margin-top:5px;font-weight:600}
+.buffer{font-size:14px;font-weight:600;line-height:1.5;padding:11px 13px;border-radius:12px;margin-top:8px}
+.buffer.ok{background:var(--green-bg);border:1px solid var(--green);color:var(--green-tx)}
+.buffer.low{background:var(--red-bg);border:1px solid var(--red);color:var(--red-tx)}
+.note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px;font-weight:500}
+.footnote{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-weight:500}
+.helper{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.45;font-weight:500}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 </style>
 </head>
@@ -79,18 +170,21 @@ body::after{content:'';position:fixed;top:-120px;right:-120px;width:400px;height
     </div>
     <div class="clock" id="clk">--:--:--</div>
     <div class="date-lbl" id="dlbl">Loading…</div>
-    <div style="font-size:10px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-top:4px">Theory · Fourth Floor LH-5</div>
+    <div class="venue-lbl">Theory · Fourth Floor LH-5</div>
   </div>
   <div class="tabs">
-    <button class="tab on" onclick="go('now')">Right Now</button>
-    <button class="tab"    onclick="go('today')">Today</button>
-    <button class="tab"    onclick="go('postings')">Postings</button>
+    <button class="tab on" data-tab="now"      onclick="go('now')">Now</button>
+    <button class="tab"    data-tab="today"    onclick="go('today')">Today</button>
+    <button class="tab"    data-tab="week"     onclick="go('week')">Week</button>
+    <button class="tab"    data-tab="attend"   onclick="go('attend')">Attend</button>
+    <button class="tab"    data-tab="postings" onclick="go('postings')">Postings</button>
   </div>
   <div id="content"></div>
+  <input type="file" id="importFile" accept="application/json,.json" style="display:none"/>
 </div>
 <script>
 /* ─────────────────────────────────────────────────────────────
-   THEORY SCHEDULE  (times in decimal hours)
+   THEORY SCHEDULE  (times in decimal hours) — used by Now/Today
    Effective 01.06.2026 – 12.09.2026 · Venue: Fourth Floor LH-5
    • Clinics 09:00–12:00
    • 12:00–13:00 class slot (subject varies by day)
@@ -135,6 +229,58 @@ const TH = {
 };
 
 /* ─────────────────────────────────────────────────────────────
+   WEEK GRID  (hourly cells) — drives the Week tab + attendance
+   vt  = visual type (color): clinic | theory | modular | free
+   nmc = NMC classification: practical | theory | none
+───────────────────────────────────────────────────────────── */
+const WEEK = {
+  1:[ // Monday
+    {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
+    {s:12,e:13, sub:"ENT",              vt:"theory",  nmc:"theory"},
+    {s:13,e:14, sub:"Free",             vt:"free",    nmc:"none"},
+    {s:14,e:15, sub:"Medicine",         vt:"theory",  nmc:"theory"},
+    {s:15,e:16, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:16,e:17, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+  ],
+  2:[ // Tuesday
+    {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
+    {s:12,e:13, sub:"PSM",              vt:"theory",  nmc:"theory"},
+    {s:13,e:14, sub:"Free",             vt:"free",    nmc:"none"},
+    {s:14,e:15, sub:"FHAP",             vt:"theory",  nmc:"theory"},
+    {s:15,e:16, sub:"FHAP",             vt:"theory",  nmc:"theory"},
+    {s:16,e:17, sub:"FHAP",             vt:"theory",  nmc:"theory"},
+  ],
+  3:[ // Wednesday
+    {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
+    {s:12,e:13, sub:"OBG",              vt:"theory",  nmc:"theory"},
+    {s:13,e:14, sub:"Free",             vt:"free",    nmc:"none"},
+    {s:14,e:15, sub:"Dermatology",      vt:"theory",  nmc:"theory"},
+    {s:15,e:16, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:16,e:17, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+  ],
+  4:[ // Thursday
+    {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
+    {s:12,e:13, sub:"Orthopaedics",     vt:"theory",  nmc:"theory"},
+    {s:13,e:14, sub:"Free",             vt:"free",    nmc:"none"},
+    {s:14,e:15, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:15,e:16, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:16,e:17, sub:"Ophthalmology",    vt:"theory",  nmc:"theory"},
+  ],
+  5:[ // Friday
+    {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
+    {s:12,e:13, sub:"Surgery",          vt:"theory",  nmc:"theory"},
+    {s:13,e:14, sub:"Free",             vt:"free",    nmc:"none"},
+    {s:14,e:15, sub:"Psychiatry",       vt:"theory",  nmc:"theory"},
+    {s:15,e:16, sub:"Ophthalmology",    vt:"theory",  nmc:"theory"},
+    {s:16,e:17, sub:"OBG",              vt:"theory",  nmc:"theory"},
+  ],
+  6:[ // Saturday
+    {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
+    {s:12,e:13, sub:"Pulmonary Medicine",vt:"theory", nmc:"theory"},
+  ],
+};
+
+/* ─────────────────────────────────────────────────────────────
    BATCH C — CLINICAL POSTINGS  (all 45 weeks)
    type: "posting" | "exam" | "vacation"
 ───────────────────────────────────────────────────────────── */
@@ -168,19 +314,41 @@ const CP = [
   {s:"2027-02-15",e:"2027-02-28",sub:"Ophthalmology — Send Up Exam",          type:"exam"},
 ];
 
+/* ── Zone A default baseline (Third-Year 2023 Batch portal numbers) ── */
+function defaultZoneA(){return[
+  {name:"Ophthalmology",                tP:5,  tT:8,  pP:null, pT:null},
+  {name:"ENT (Oto-Rhino-Laryngology)",  tP:4,  tT:5,  pP:null, pT:null},
+  {name:"General Medicine",             tP:14, tT:17, pP:null, pT:null},
+  {name:"General Surgery",              tP:1,  tT:1,  pP:null, pT:null},
+  {name:"Obstetrics & Gynaecology",     tP:8,  tT:11, pP:null, pT:null},
+  {name:"Orthopedics",                  tP:3,  tT:4,  pP:null, pT:null},
+  {name:"Psychiatry",                   tP:12, tT:17, pP:null, pT:null},
+];}
+
 const DAYS   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const DSHORT = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+const TH_THR = 75, PR_THR = 80;           /* NMC CBME 2023 thresholds */
+const LSA = "jtt_zoneA_v1", LSB = "jtt_zoneB_v1";
 
 const C = {
-  clinic:  {bg:"rgba(34,197,94,.14)",  bd:"#22c55e", tx:"#86efac", dot:"#22c55e"},
-  theory:  {bg:"rgba(99,102,241,.14)", bd:"#6366f1", tx:"#a5b4fc", dot:"#6366f1"},
-  modular: {bg:"rgba(245,158,11,.14)", bd:"#f59e0b", tx:"#fcd34d", dot:"#f59e0b"},
+  clinic:  {bg:"rgba(74,222,128,.16)",  bd:"#4ADE80", tx:"#86EFAC", dot:"#4ADE80"},
+  theory:  {bg:"rgba(139,147,255,.18)", bd:"#8B93FF", tx:"#C7CCFF", dot:"#8B93FF"},
+  modular: {bg:"rgba(251,191,36,.16)",  bd:"#FBBF24", tx:"#FCD34D", dot:"#FBBF24"},
+  free:    {bg:"rgba(255,255,255,.04)", bd:"rgba(255,255,255,.14)", tx:"#A0A4AB", dot:"#6b7280"},
 };
 
+/* ── helpers ── */
 function pd(str){const[y,m,d]=str.split("-").map(Number);return new Date(y,m-1,d);}
 function tod(n){return new Date(n.getFullYear(),n.getMonth(),n.getDate());}
 function fh(h){return`${h>12?h-12:h===0?12:h}:00 ${h>=12?"PM":"AM"}`;}
+function h12(h){return h>12?h-12:h===0?12:h;}
+function shr(s,e){return`${h12(s)}–${h12(e)}`;}
 function daysUntil(s,n){return Math.round((pd(s)-tod(n))/86400000);}
+function isoDate(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
+function esc(s){return String(s).replace(/'/g,"\\'");}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+function pctStr(x){return(Math.round(x*10)/10)+"%";}
 function postPct(p,n){
   const tot=(pd(p.e)-pd(p.s))/86400000+1;
   const done=(tod(n)-pd(p.s))/86400000+1;
@@ -188,20 +356,31 @@ function postPct(p,n){
 }
 function getActive(n){const t=tod(n);return CP.find(p=>t>=pd(p.s)&&t<=pd(p.e));}
 function getNext(n){const t=tod(n);return CP.find(p=>pd(p.s)>t);}
+/* most-recent calendar date (<= today) for a given weekday 1..6 */
+function recentDateForDow(dow){
+  const today=tod(new Date());
+  const diff=(today.getDay()-dow+7)%7;
+  const d=new Date(today);d.setDate(d.getDate()-diff);
+  return d;
+}
 
-let tab="now";
+/* ── persistence ── */
+function loadZoneA(){try{const r=localStorage.getItem(LSA);if(r){const o=JSON.parse(r);if(Array.isArray(o)&&o.length)return o;}}catch(e){}return defaultZoneA();}
+function saveZoneA(z){try{localStorage.setItem(LSA,JSON.stringify(z));}catch(e){}}
+function loadZoneB(){try{const r=localStorage.getItem(LSB);if(r){const o=JSON.parse(r);if(o&&o.marks)return o;}}catch(e){}return{marks:{}};}
+function saveZoneB(z){try{localStorage.setItem(LSB,JSON.stringify(z));}catch(e){}}
+
+let tab="now", editA=false;
 function go(t){
   tab=t;
-  document.querySelectorAll(".tab").forEach((el,i)=>{
-    el.classList.toggle("on",["now","today","postings"][i]===t);
-  });
+  document.querySelectorAll(".tab").forEach(el=>el.classList.toggle("on",el.dataset.tab===t));
   render();
 }
 
 function card(lbl,inner){return`<div class="card"><div class="card-lbl">${lbl}</div>${inner}</div>`;}
 function pill(txt,c){return`<span class="pill" style="background:${c.bg};border-color:${c.bd};color:${c.tx}">${txt}</span>`;}
 
-/* ── RIGHT NOW ── */
+/* ─────────────────────── RIGHT NOW ─────────────────────── */
 function rNow(n){
   const dow=n.getDay(),h=n.getHours(),m=n.getMinutes(),cur=h+m/60;
   const slots=TH[dow]||[];
@@ -210,7 +389,6 @@ function rNow(n){
   const ap=getActive(n),np=getNext(n);
   let html="";
 
-  /* current class card */
   let ci="";
   if(dow===0){
     ci=`<div class="muted-txt">Sunday — no classes today 🎉</div>`;
@@ -218,7 +396,7 @@ function rNow(n){
     const c=C[active.type];
     const p=Math.round((cur-active.s)/(active.e-active.s)*100);
     ci=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-          <div style="width:10px;height:10px;border-radius:50%;background:${c.dot};box-shadow:0 0 8px ${c.dot};flex-shrink:0"></div>
+          <div style="width:11px;height:11px;border-radius:50%;background:${c.dot};box-shadow:0 0 8px ${c.dot};flex-shrink:0"></div>
           <span class="big" style="margin:0">${active.sub}</span>
         </div>
         <div class="sm">${fh(active.s)} → ${fh(active.e)}</div>
@@ -233,7 +411,6 @@ function rNow(n){
   }
   html+=card("NOW IN CLASS",ci);
 
-  /* next class */
   if(next&&dow!==0){
     const c=C[next.type];
     html+=card("UP NEXT",`<div class="row">
@@ -243,18 +420,17 @@ function rNow(n){
       </div>${pill(next.type,c)}</div>`);
   }
 
-  /* clinical posting */
   let pi="";
   if(ap){
     const isExam=ap.type==="exam",isVac=ap.type==="vacation";
-    const acc=isExam?"#ef4444":isVac?"#f59e0b":"#22c55e";
-    const lit=isExam?"#fca5a5":isVac?"#fcd34d":"#86efac";
+    const acc=isExam?"#F87171":isVac?"#FBBF24":"#4ADE80";
+    const lit=isExam?"#FCA5A5":isVac?"#FCD34D":"#86EFAC";
     const p2=postPct(ap,n);
     pi=`<div class="big">${ap.sub}</div>
         <div class="sm">${ap.s} → ${ap.e}</div>
         <div class="track"><div class="fill" style="width:${p2}%;background:linear-gradient(90deg,${acc},${lit})"></div></div>
         <div class="pct-lbl">${p2}% complete${np?` · Next: ${np.sub} in ${daysUntil(np.s,n)}d`:""}
-        ${isExam?`<br><span style="color:#fca5a5;font-size:11px">⚠️ Exam period — focus!</span>`:""}
+        ${isExam?`<br><span style="color:#FCA5A5;font-size:12px;font-weight:700">⚠️ Exam period — focus!</span>`:""}
         </div>`;
   } else {
     pi=`<div class="muted-txt">No active posting</div>`;
@@ -263,7 +439,7 @@ function rNow(n){
   return html;
 }
 
-/* ── TODAY ── */
+/* ─────────────────────── TODAY ─────────────────────── */
 function rToday(n){
   const dow=n.getDay(),h=n.getHours(),m=n.getMinutes(),cur=h+m/60;
   const slots=TH[dow]||[];
@@ -271,13 +447,12 @@ function rToday(n){
   if(!slots.length) return card("TODAY",`<div class="muted-txt">No schedule</div>`);
 
   let html="";
-
   slots.forEach(sl=>{
     const isNow=cur>=sl.s&&cur<sl.e;
     const isPast=cur>=sl.e;
     const c=C[sl.type];
     const p=isNow?Math.round((cur-sl.s)/(sl.e-sl.s)*100):0;
-    html+=`<div class="slot ${isNow?"now":""} ${isPast?"past":""}" ${isNow?`style="border-color:${c.bd};background:${c.bg}"`:""}">
+    html+=`<div class="slot ${isNow?"now":""} ${isPast?"past":""}" ${isNow?`style="border-color:${c.bd};background:${c.bg}"`:""}>
       <div class="slot-accent" style="background:${c.dot};box-shadow:0 0 8px ${c.dot}"></div>
       <div class="row">
         <div>
@@ -292,15 +467,312 @@ function rToday(n){
   return html;
 }
 
-/* ── POSTINGS ── */
+/* ─────────────────────── WEEK ─────────────────────── */
+function rWeek(n){
+  const todayDow=n.getDay();
+  let html=card("WEEKLY THEORY SCHEDULE",
+    `<div class="sm" style="margin-top:-4px">Venue: Fourth Floor LH-5 · 01.06.2026 – 12.09.2026<br>Slots: 9–12 · 12–1 · 1–2 (free) · 2–3 · 3–4 · 4–5</div>`);
+  for(let dow=1;dow<=6;dow++){
+    const isToday=dow===todayDow;
+    const cells=WEEK[dow].map(p=>{
+      const c=C[p.vt];
+      return`<div class="cell ${p.vt==="free"?"free":""}" style="border-color:${c.bd};background:${c.bg}">
+        <div class="cell-time" style="color:${c.tx}">${shr(p.s,p.e)}</div>
+        <div class="cell-sub" style="color:${p.vt==="free"?"var(--muted)":"var(--text)"}">${p.sub}</div>
+      </div>`;
+    }).join("");
+    html+=`<div class="daycard ${isToday?"today":""}">
+      <div class="dayhead">
+        <span class="dayname">${DAYS[dow]}</span>
+        ${isToday?`<span class="daytag">● Today</span>`:""}
+      </div>
+      <div class="cells">${cells}</div>
+    </div>`;
+  }
+  return html;
+}
+
+/* ─────────────────────── ATTEND ─────────────────────── */
+function bar(pct,thr){
+  const ok=pct>=thr;
+  const col=ok?"var(--green)":"var(--red)";
+  return`<div class="bar"><div class="bar-fill" style="width:${Math.min(100,pct)}%;background:${col}"></div>
+    <div class="bar-mark" data-l="${thr}%" style="left:${thr}%"></div></div>`;
+}
+function colorFor(pct,thr){
+  if(pct>=thr) return "var(--green)";
+  if(pct>=thr-5) return "var(--amber)";
+  return "var(--red)";
+}
+function needToReach(p,a,thr){const r=thr/100;if((p+a)===0)return 0;if(p/(p+a)>=r)return 0;return Math.max(0,Math.ceil((r*(p+a)-p)/(1-r)));}
+function canMiss(p,a,thr){const r=thr/100;if((p+a)===0)return 0;return Math.max(0,Math.floor(p/r-(p+a)));}
+
+function zbStats(){
+  const z=loadZoneB();
+  const out={theory:{p:0,a:0},practical:{p:0,a:0},subjects:{}};
+  for(const k in z.marks){
+    const mk=z.marks[k];
+    if(!mk||(mk.status!=="present"&&mk.status!=="absent"))continue;
+    const kind=mk.kind;
+    if(kind==="theory"||kind==="practical")out[kind][mk.status==="present"?"p":"a"]++;
+    const s=out.subjects[mk.sub]||(out.subjects[mk.sub]={p:0,a:0,kind:kind});
+    s[mk.status==="present"?"p":"a"]++;
+  }
+  return out;
+}
+
+function rAttend(n){
+  let html="";
+  /* top banner */
+  html+=`<div class="banner">📋 Your college portal is your <b>REAL</b> eligibility record. This tracker is a personal estimate only.</div>`;
+
+  /* ── ZONE A — Official Baseline ── */
+  const za=loadZoneA();
+  let aTP=0,aTT=0,aPP=0,aPT=0,hasP=false;
+  za.forEach(s=>{if(s.tT){aTP+=(s.tP||0);aTT+=s.tT;}if(s.pT){aPP+=(s.pP||0);aPT+=s.pT;hasP=true;}});
+  const aThPct=aTT?aTP/aTT*100:0, aPrPct=aPT?aPP/aPT*100:0;
+
+  let aInner=`<div class="zone-title">🏛️ Official Baseline</div>
+    <div class="zone-sub">Mirrors your college portal (Third-Year · 2023 Batch). Read-only — update by hand when you check the live portal.</div>`;
+
+  if(editA){
+    aInner+=`<div class="editgrid">`+za.map((s,i)=>`
+      <div class="editsub">
+        <div class="nm">${s.name}</div>
+        <div class="editfields">
+          <div><label>Theory present</label><input class="inp" id="a_${i}_tP" type="number" inputmode="numeric" value="${s.tP??""}"></div>
+          <div><label>Theory total</label><input class="inp" id="a_${i}_tT" type="number" inputmode="numeric" value="${s.tT??""}"></div>
+          <div><label>Practical present</label><input class="inp" id="a_${i}_pP" type="number" inputmode="numeric" value="${s.pP??""}"></div>
+          <div><label>Practical total</label><input class="inp" id="a_${i}_pT" type="number" inputmode="numeric" value="${s.pT??""}"></div>
+        </div>
+      </div>`).join("")+`</div>
+      <div class="btn-row">
+        <button class="btn primary" onclick="saveBaseline()">Save baseline</button>
+        <button class="btn" onclick="cancelEditA()">Cancel</button>
+      </div>`;
+  } else {
+    aInner+=`<div class="bars">
+      <div class="barlbl"><span>Theory (need ≥${TH_THR}%)</span><span style="color:${aThPct>=TH_THR?'var(--green-tx)':'var(--red-tx)'}">${aTP}/${aTT} · ${pctStr(aThPct)}</span></div>
+      ${bar(aThPct,TH_THR)}
+    </div>`;
+    if(hasP){
+      aInner+=`<div class="bars">
+        <div class="barlbl"><span>Practical (need ≥${PR_THR}%)</span><span style="color:${aPrPct>=PR_THR?'var(--green-tx)':'var(--red-tx)'}">${aPP}/${aPT} · ${pctStr(aPrPct)}</span></div>
+        ${bar(aPrPct,PR_THR)}
+      </div>`;
+    } else {
+      aInner+=`<div class="note">No practical/clinical figures on the portal yet — tap “Edit baseline” to add them per subject.</div>`;
+    }
+    aInner+=za.map(s=>{
+      const th=s.tT?s.tP/s.tT*100:null;
+      const pr=s.pT?s.pP/s.pT*100:null;
+      return`<div class="subline">
+        <div class="subrow"><span class="subname">${s.name}</span></div>
+        <div class="subrow"><span class="sm" style="color:var(--muted)">Theory</span>
+          <span class="subval" style="color:${th===null?'var(--muted)':colorFor(th,TH_THR)}">${th===null?"—":`${s.tP}/${s.tT} · ${pctStr(th)}`}</span></div>
+        <div class="subrow"><span class="sm" style="color:var(--muted)">Practical</span>
+          <span class="subval" style="color:${pr===null?'var(--muted)':colorFor(pr,PR_THR)}">${pr===null?"—":`${s.pP}/${s.pT} · ${pctStr(pr)}`}</span></div>
+      </div>`;
+    }).join("");
+    aInner+=`<div class="btn-row"><button class="btn sm" onclick="toggleEditA()">✏️ Edit baseline</button></div>`;
+  }
+  html+=`<div class="zone a">${aInner}</div>`;
+
+  /* ── ZONE B — My Daily Tracking ── */
+  const zb=loadZoneB();
+  let bInner=`<div class="zone-title">📲 My Daily Tracking</div>
+    <div class="zone-sub">Separate from the baseline above. Tap a period to cycle: Present → Absent → Cancelled → Unmarked. Logged against real dates.</div>`;
+
+  for(let dow=1;dow<=6;dow++){
+    const date=recentDateForDow(dow);
+    const iso=isoDate(date);
+    const isToday=isoDate(tod(n))===iso;
+    const periods=WEEK[dow];
+    const markable=periods.filter(p=>p.nmc!=="none");
+    const marked=markable.filter(p=>zb.marks[iso+"__"+p.s]).length;
+    const chips=periods.map(p=>{
+      if(p.nmc==="none"){
+        return`<div class="pchip free"><div class="pc-sub">Free</div><div class="pc-time">${shr(p.s,p.e)}</div><div class="pc-status">—</div></div>`;
+      }
+      const m=zb.marks[iso+"__"+p.s];
+      const st=m?m.status:"unmarked";
+      const sym=st==="present"?"✓ Present":st==="absent"?"✗ Absent":st==="cancelled"?"— Cancelled":"Tap to mark";
+      const dot=st!=="unmarked"?`<span class="pc-dot"></span>`:"";
+      return`<button class="pchip ${st}" onclick="cycleMark('${iso}',${p.s},'${esc(p.sub)}','${p.nmc}')">
+        ${dot}
+        <div class="pc-sub">${p.sub}</div>
+        <div class="pc-time">${shr(p.s,p.e)}${p.nmc==="practical"?" · clinical":""}</div>
+        <div class="pc-status">${sym}</div>
+      </button>`;
+    }).join("");
+    bInner+=`<div class="bday ${isToday?"today":""}">
+      <div class="bday-head">
+        <div><span class="bday-name">${DAYS[dow]}</span><span class="bday-date">${date.getDate()} ${MONTHS[date.getMonth()]}${isToday?" · Today":""}</span></div>
+        <span class="bday-count">${marked}/${markable.length} marked</span>
+      </div>
+      <div class="qbtns">
+        <button class="btn sm" onclick="quickMark('${iso}',${dow},'present')">✓ All Present</button>
+        <button class="btn sm" onclick="quickMark('${iso}',${dow},'cancelled')">— All Cancelled</button>
+      </div>
+      <div class="pchips" style="margin-top:9px">${chips}</div>
+    </div>`;
+  }
+  html+=`<div class="zone b">${bInner}</div>`;
+
+  /* ── STATISTICS (Zone B) ── */
+  const st=zbStats();
+  const tTot=st.theory.p+st.theory.a, pTot=st.practical.p+st.practical.a;
+  const tPct=tTot?st.theory.p/tTot*100:null;
+  const pPct=pTot?st.practical.p/pTot*100:null;
+
+  let sInner=`<div class="zone-title">📊 Statistics (your tracking)</div>
+    <div class="zone-sub">Present ÷ (Present + Absent). Cancelled classes are excluded.</div>`;
+
+  if(tTot===0&&pTot===0){
+    sInner+=`<div class="muted-txt">No classes marked yet — start tapping periods above to see your stats. ✨</div>`;
+  } else {
+    sInner+=`<div class="statbig">
+      <div class="statbox">
+        <div class="statname">Theory</div>
+        <div class="statnum" style="color:${tPct===null?'var(--muted)':colorFor(tPct,TH_THR)}">${tPct===null?"—":Math.round(tPct)+"%"}</div>
+        <div class="statden">${tPct===null?"no data":`${st.theory.p}/${tTot} · need ≥${TH_THR}%`}</div>
+      </div>
+      <div class="statbox">
+        <div class="statname">Practical</div>
+        <div class="statnum" style="color:${pPct===null?'var(--muted)':colorFor(pPct,PR_THR)}">${pPct===null?"—":Math.round(pPct)+"%"}</div>
+        <div class="statden">${pPct===null?"no data":`${st.practical.p}/${pTot} · need ≥${PR_THR}%`}</div>
+      </div>
+    </div>`;
+
+    /* overall microcopy */
+    const tSafe=tPct===null||tPct>=TH_THR, pSafe=pPct===null||pPct>=PR_THR;
+    if(tSafe&&pSafe) sInner+=`<div class="buffer ok">Nice, you're on track 🎉 Keep it up!</div>`;
+    else sInner+=`<div class="buffer low">A little below the line — no panic, a few more attended classes will fix it. You've got this 💪</div>`;
+
+    /* buffer calculators */
+    if(tPct!==null){
+      if(tPct>=TH_THR){const x=canMiss(st.theory.p,st.theory.a,TH_THR);
+        sInner+=`<div class="buffer ok">Theory: you're safe — you can miss up to <b>${x}</b> more theory class${x===1?"":"es"} and stay above ${TH_THR}%.</div>`;}
+      else{const y=needToReach(st.theory.p,st.theory.a,TH_THR);
+        sInner+=`<div class="buffer low">Theory: attend the next <b>${y}</b> theory class${y===1?"":"es"} to reach ${TH_THR}%.</div>`;}
+    }
+    if(pPct!==null){
+      if(pPct>=PR_THR){const x=canMiss(st.practical.p,st.practical.a,PR_THR);
+        sInner+=`<div class="buffer ok">Practical: you're safe — you can miss up to <b>${x}</b> more practical session${x===1?"":"s"} and stay above ${PR_THR}%.</div>`;}
+      else{const y=needToReach(st.practical.p,st.practical.a,PR_THR);
+        sInner+=`<div class="buffer low">Practical: attend the next <b>${y}</b> practical session${y===1?"":"s"} to reach ${PR_THR}%.</div>`;}
+    }
+
+    /* per-subject */
+    sInner+=`<div style="margin-top:14px">`;
+    const subs=Object.keys(st.subjects).sort();
+    subs.forEach(name=>{
+      const s=st.subjects[name];const tot=s.p+s.a;const pct=tot?s.p/tot*100:0;
+      const thr=s.kind==="practical"?PR_THR:TH_THR;const col=colorFor(pct,thr);
+      sInner+=`<div class="subline">
+        <div class="subrow"><span class="subname">${name} <span class="sm" style="color:var(--muted)">${s.kind}</span></span>
+          <span class="subval" style="color:${col}">${Math.round(pct)}% (${s.p}/${tot})</span></div>
+        <div class="minibar"><div style="width:${Math.min(100,pct)}%;background:${col}"></div></div>
+      </div>`;
+    });
+    sInner+=`</div>`;
+  }
+
+  sInner+=`<div class="footnote">NMC CBME 2023: 75% theory + 80% practical per subject required to sit exams. Your college portal is the official record.</div>`;
+  html+=`<div class="zone">${sInner}</div>`;
+
+  /* ── BACKUP + RESET ── */
+  html+=`<div class="zone">
+    <div class="zone-title">💾 Backup &amp; data</div>
+    <div class="btn-row">
+      <button class="btn primary" onclick="exportBackup()">⬆️ Export backup</button>
+      <button class="btn" onclick="document.getElementById('importFile').click()">⬇️ Import backup</button>
+    </div>
+    <div class="helper">Saved on this phone. Export a backup to keep it safe or move to another device.</div>
+    <div class="btn-row" style="margin-top:14px">
+      <button class="btn danger" onclick="resetTracking()">🗑️ Reset my tracking</button>
+    </div>
+    <div class="helper">Reset clears only your daily tracking — never the official baseline.</div>
+  </div>`;
+
+  return html;
+}
+
+/* ── attendance actions (global) ── */
+window.cycleMark=function(iso,start,sub,kind){
+  const z=loadZoneB();const key=iso+"__"+start;
+  const cur=z.marks[key]?z.marks[key].status:"unmarked";
+  const order=["unmarked","present","absent","cancelled"];
+  const nxt=order[(order.indexOf(cur)+1)%order.length];
+  if(nxt==="unmarked")delete z.marks[key];
+  else z.marks[key]={status:nxt,sub:sub,kind:kind,date:iso,start:start};
+  saveZoneB(z);render();
+};
+window.quickMark=function(iso,dow,status){
+  const z=loadZoneB();
+  (WEEK[dow]||[]).forEach(p=>{
+    if(p.nmc==="none")return;
+    const key=iso+"__"+p.s;
+    z.marks[key]={status:status,sub:p.sub,kind:p.nmc,date:iso,start:p.s};
+  });
+  saveZoneB(z);render();
+};
+window.toggleEditA=function(){editA=true;render();};
+window.cancelEditA=function(){editA=false;render();};
+window.saveBaseline=function(){
+  const z=loadZoneA();
+  const num=id=>{const v=document.getElementById(id).value.trim();return v===""?null:Number(v);};
+  z.forEach((s,i)=>{s.tP=num(`a_${i}_tP`);s.tT=num(`a_${i}_tT`);s.pP=num(`a_${i}_pP`);s.pT=num(`a_${i}_pT`);});
+  saveZoneA(z);editA=false;render();
+};
+window.resetTracking=function(){
+  if(confirm("Reset ALL your daily tracking? This clears every Present/Absent/Cancelled you've logged. Your official baseline stays untouched.")){
+    saveZoneB({marks:{}});render();
+  }
+};
+window.exportBackup=function(){
+  const data={app:"JipTiTbl",kind:"attendance-backup",version:1,exportedAt:new Date().toISOString(),
+    zoneA:loadZoneA(),zoneB:loadZoneB()};
+  const json=JSON.stringify(data,null,2);
+  const fname=`jiptitbl-attendance-${isoDate(new Date())}.json`;
+  try{
+    const file=new File([json],fname,{type:"application/json"});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:"JipTiTbl attendance backup"}).catch(()=>{});
+      return;
+    }
+  }catch(e){}
+  const blob=new Blob([json],{type:"application/json"});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement("a");a.href=url;a.download=fname;document.body.appendChild(a);a.click();
+  setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},1500);
+};
+document.getElementById("importFile").addEventListener("change",function(ev){
+  const f=ev.target.files&&ev.target.files[0];if(!f)return;
+  const rd=new FileReader();
+  rd.onload=function(){
+    try{
+      const o=JSON.parse(rd.result);
+      if(!o||typeof o!=="object"||!o.zoneB||!o.zoneB.marks||!Array.isArray(o.zoneA))
+        throw new Error("bad");
+      saveZoneA(o.zoneA);saveZoneB(o.zoneB);
+      editA=false;render();
+      alert("Backup restored ✓");
+    }catch(e){alert("Couldn't read that file — make sure it's a JipTiTbl backup JSON.");}
+    ev.target.value="";
+  };
+  rd.readAsText(f);
+});
+
+/* ─────────────────────── POSTINGS ─────────────────────── */
 function rPostings(n){
   const t=tod(n),ap=getActive(n);
   return CP.map(p=>{
     const isActive=ap&&ap.s===p.s;
     const isPast=pd(p.e)<t;
     const isExam=p.type==="exam",isVac=p.type==="vacation";
-    const acc=isExam?"#ef4444":isVac?"#f59e0b":"#6366f1";
-    const dotCol=isPast?"#334155":acc;
+    const acc=isExam?"#F87171":isVac?"#FBBF24":"#8B93FF";
+    const dotCol=isPast?"#5b6370":acc;
     const days=daysUntil(p.s,n);
     const status=isActive?"● active":isPast?"done":`in ${days}d`;
     const cls=isActive?"active":isExam?"exam":isVac?"vac":isPast?"past":"";
@@ -318,9 +790,11 @@ function rPostings(n){
 function render(){
   const n=new Date();
   const el=document.getElementById("content");
-  if(tab==="now")      el.innerHTML=rNow(n);
+  if(tab==="now")           el.innerHTML=rNow(n);
   else if(tab==="today")    el.innerHTML=rToday(n);
-  else                 el.innerHTML=rPostings(n);
+  else if(tab==="week")     el.innerHTML=rWeek(n);
+  else if(tab==="attend")   el.innerHTML=rAttend(n);
+  else                      el.innerHTML=rPostings(n);
 }
 
 function tick(){
@@ -329,9 +803,11 @@ function tick(){
     n.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
   document.getElementById("dlbl").textContent=
     `${DAYS[n.getDay()]}, ${n.getDate()} ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
-  render();
+  /* only the live tabs re-render on tick; Week/Attend/Postings stay put so taps & inputs aren't disturbed */
+  if(tab==="now"||tab==="today") render();
 }
 tick();
+render();
 setInterval(tick,1000);
 </script>
 </body>
