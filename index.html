@@ -158,6 +158,34 @@ body::after{content:'';position:fixed;top:-120px;right:-120px;width:400px;height
 .note{font-size:12px;color:var(--muted);line-height:1.5;margin-top:10px;font-weight:500}
 .footnote{font-size:11.5px;color:var(--muted);line-height:1.5;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);font-weight:500}
 .helper{font-size:12px;color:var(--muted);margin-top:8px;line-height:1.45;font-weight:500}
+/* ── mark states on slots (Now / Today tabs) ── */
+.slot.tappable{cursor:pointer}
+.slot.tappable:active{opacity:.82}
+.slot.mk-present{border-color:var(--green)!important;background:var(--green-bg)!important}
+.slot.mk-absent{border-color:var(--red)!important;background:var(--red-bg)!important}
+.slot.mk-cancelled{border-color:var(--amber)!important;background:var(--amber-bg)!important}
+.slot-dot{position:absolute;top:10px;right:13px;width:9px;height:9px;border-radius:50%}
+.mk-present .slot-dot{background:var(--green);box-shadow:0 0 6px var(--green)}
+.mk-absent .slot-dot{background:var(--red);box-shadow:0 0 6px var(--red)}
+.mk-cancelled .slot-dot{background:var(--amber);box-shadow:0 0 6px var(--amber)}
+.mk-row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:11px;padding-top:10px;border-top:1px solid rgba(255,255,255,0.08)}
+.day-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:8px}
+.day-count{font-size:12px;font-weight:700;color:var(--sub);background:rgba(255,255,255,0.06);padding:4px 10px;border-radius:10px}
+/* ── tappable week cells ── */
+.cell{position:relative}
+button.cell{font-family:inherit;text-align:left;cursor:pointer;outline:none;-webkit-tap-highlight-color:transparent}
+button.cell:active{transform:scale(.95)}
+.cell.mk-present{border-color:var(--green)!important;background:var(--green-bg)!important}
+.cell.mk-absent{border-color:var(--red)!important;background:var(--red-bg)!important}
+.cell.mk-cancelled{border-color:var(--amber)!important;background:var(--amber-bg)!important}
+.cell-dot{position:absolute;top:7px;right:8px;width:8px;height:8px;border-radius:50%}
+.cell.mk-present .cell-dot{background:var(--green);box-shadow:0 0 5px var(--green)}
+.cell.mk-absent .cell-dot{background:var(--red);box-shadow:0 0 5px var(--red)}
+.cell.mk-cancelled .cell-dot{background:var(--amber);box-shadow:0 0 5px var(--amber)}
+.cell-st{font-size:10px;font-weight:800;margin-top:3px}
+.cell.mk-present .cell-st{color:var(--green-tx)}
+.cell.mk-absent .cell-st{color:var(--red-tx)}
+.cell.mk-cancelled .cell-st{color:var(--amber-tx)}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 </style>
 </head>
@@ -370,6 +398,30 @@ function saveZoneA(z){try{localStorage.setItem(LSA,JSON.stringify(z));}catch(e){
 function loadZoneB(){try{const r=localStorage.getItem(LSB);if(r){const o=JSON.parse(r);if(o&&o.marks)return o;}}catch(e){}return{marks:{}};}
 function saveZoneB(z){try{localStorage.setItem(LSB,JSON.stringify(z));}catch(e){}}
 
+function weekSlotsForTH(dow,thSlot){
+  return (WEEK[dow]||[]).filter(p=>p.nmc!=="none"&&p.s>=thSlot.s&&p.s<thSlot.e);
+}
+function markStateForTH(iso,dow,thSlot){
+  const z=loadZoneB();
+  const ws=weekSlotsForTH(dow,thSlot);
+  if(!ws.length)return"none";
+  return z.marks[iso+"__"+ws[0].s]?.status||"unmarked";
+}
+window.cycleMarkTH=function(iso,dow,thS,thE){
+  const z=loadZoneB();
+  const ws=(WEEK[dow]||[]).filter(p=>p.nmc!=="none"&&p.s>=thS&&p.s<thE);
+  if(!ws.length)return;
+  const cur=z.marks[iso+"__"+ws[0].s]?.status||"unmarked";
+  const order=["unmarked","present","absent","cancelled"];
+  const nxt=order[(order.indexOf(cur)+1)%order.length];
+  ws.forEach(p=>{
+    const key=iso+"__"+p.s;
+    if(nxt==="unmarked")delete z.marks[key];
+    else z.marks[key]={status:nxt,sub:p.sub,kind:p.nmc,date:iso,start:p.s};
+  });
+  saveZoneB(z);render();
+};
+
 let tab="now", editA=false;
 function go(t){
   tab=t;
@@ -387,6 +439,7 @@ function rNow(n){
   const active=slots.find(s=>cur>=s.s&&cur<s.e);
   const next=slots.find(s=>s.s>cur);
   const ap=getActive(n),np=getNext(n);
+  const iso=isoDate(tod(n));
   let html="";
 
   let ci="";
@@ -395,13 +448,22 @@ function rNow(n){
   } else if(active){
     const c=C[active.type];
     const p=Math.round((cur-active.s)/(active.e-active.s)*100);
+    const wSlots=weekSlotsForTH(dow,active);
+    const mkable=wSlots.length>0;
+    const mkSt=mkable?markStateForTH(iso,dow,active):"none";
+    const mkLbl=mkSt==="present"?"✓ Present":mkSt==="absent"?"✗ Absent":mkSt==="cancelled"?"— Cancelled":"Tap to mark";
+    const mkCol=mkSt==="present"?"var(--green-tx)":mkSt==="absent"?"var(--red-tx)":mkSt==="cancelled"?"var(--amber-tx)":"var(--muted)";
     ci=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <div style="width:11px;height:11px;border-radius:50%;background:${c.dot};box-shadow:0 0 8px ${c.dot};flex-shrink:0"></div>
           <span class="big" style="margin:0">${active.sub}</span>
         </div>
         <div class="sm">${fh(active.s)} → ${fh(active.e)}</div>
         <div class="track"><div class="fill" style="width:${p}%;background:linear-gradient(90deg,${c.dot},${c.tx})"></div></div>
-        <div class="pct-lbl">${p}% through this period</div>`;
+        <div class="pct-lbl">${p}% through this period</div>
+        ${mkable?`<div class="mk-row">
+          <span style="font-size:13px;font-weight:700;color:${mkCol}">${mkLbl}</span>
+          <button class="btn sm" onclick="cycleMarkTH('${iso}',${dow},${active.s},${active.e})">Mark ↻</button>
+        </div>`:""}`;
   } else if(h<9){
     ci=`<div class="muted-txt">Classes start at 9:00 AM ☀️</div>`;
   } else if(h>=17||(dow===6&&h>=13)){
@@ -413,11 +475,20 @@ function rNow(n){
 
   if(next&&dow!==0){
     const c=C[next.type];
+    const nxtWSlots=weekSlotsForTH(dow,next);
+    const nxtMkable=nxtWSlots.length>0;
+    const nxtSt=nxtMkable?markStateForTH(iso,dow,next):"none";
+    const nxtLbl=nxtSt==="present"?"✓ Present":nxtSt==="absent"?"✗ Absent":nxtSt==="cancelled"?"— Cancelled":"";
+    const nxtCol=nxtSt==="present"?"var(--green-tx)":nxtSt==="absent"?"var(--red-tx)":nxtSt==="cancelled"?"var(--amber-tx)":"var(--muted)";
     html+=card("UP NEXT",`<div class="row">
       <div>
         <div class="med">${next.sub}</div>
         <div class="sm">Starts at ${fh(next.s)}</div>
-      </div>${pill(next.type,c)}</div>`);
+      </div>${pill(next.type,c)}</div>
+      ${nxtMkable?`<div class="mk-row">
+        <span style="font-size:13px;font-weight:700;color:${nxtCol}">${nxtLbl||"Not marked yet"}</span>
+        <button class="btn sm" onclick="cycleMarkTH('${iso}',${dow},${next.s},${next.e})">Mark ↻</button>
+      </div>`:""}`)
   }
 
   let pi="";
@@ -446,13 +517,33 @@ function rToday(n){
   if(dow===0) return card("SUNDAY",`<div class="muted-txt">No classes. Rest up! 🌴</div>`);
   if(!slots.length) return card("TODAY",`<div class="muted-txt">No schedule</div>`);
 
-  let html="";
+  const iso=isoDate(tod(n));
+  const z=loadZoneB();
+  const allWSlots=(WEEK[dow]||[]).filter(p=>p.nmc!=="none");
+  const markedCount=allWSlots.filter(p=>z.marks[iso+"__"+p.s]).length;
+
+  let html=`<div class="day-hdr">
+    <div style="display:flex;gap:6px;flex-wrap:wrap">
+      <button class="btn sm" onclick="quickMark('${iso}',${dow},'present')">✓ All Present</button>
+      <button class="btn sm" onclick="quickMark('${iso}',${dow},'cancelled')">— All Cancelled</button>
+    </div>
+    <span class="day-count">${markedCount}/${allWSlots.length} marked</span>
+  </div>`;
+
   slots.forEach(sl=>{
     const isNow=cur>=sl.s&&cur<sl.e;
     const isPast=cur>=sl.e;
     const c=C[sl.type];
     const p=isNow?Math.round((cur-sl.s)/(sl.e-sl.s)*100):0;
-    html+=`<div class="slot ${isNow?"now":""} ${isPast?"past":""}" ${isNow?`style="border-color:${c.bd};background:${c.bg}"`:""}>
+    const wSlots=weekSlotsForTH(dow,sl);
+    const mkable=wSlots.length>0;
+    const mkSt=mkable?markStateForTH(iso,dow,sl):"none";
+    const mkCls=mkSt!=="none"&&mkSt!=="unmarked"?` mk-${mkSt}`:"";
+    const mkDot=mkSt!=="none"&&mkSt!=="unmarked"?`<span class="slot-dot"></span>`:"";
+    const mkLbl=mkSt==="present"?"✓ Present":mkSt==="absent"?"✗ Absent":mkSt==="cancelled"?"— Cancelled":"";
+    const mkCol=mkSt==="present"?"var(--green-tx)":mkSt==="absent"?"var(--red-tx)":mkSt==="cancelled"?"var(--amber-tx)":"var(--muted)";
+    html+=`<div class="slot ${isNow?"now":""} ${isPast?"past":""}${mkCls}${mkable?" tappable":""}" ${isNow?`style="border-color:${c.bd};background:${c.bg}"`:""}${mkable?` onclick="cycleMarkTH('${iso}',${dow},${sl.s},${sl.e})"`:""}>
+      ${mkDot}
       <div class="slot-accent" style="background:${c.dot};box-shadow:0 0 8px ${c.dot}"></div>
       <div class="row">
         <div>
@@ -462,6 +553,7 @@ function rToday(n){
         ${pill(isNow?"● NOW":isPast?"done":sl.type,c)}
       </div>
       ${isNow?`<div class="track"><div class="fill" style="width:${p}%;background:linear-gradient(90deg,${c.dot},${c.tx})"></div></div>`:""}
+      ${mkable&&mkLbl?`<div class="mk-row"><span style="font-size:12px;font-weight:700;color:${mkCol}">${mkLbl}</span></div>`:""}
     </div>`;
   });
   return html;
@@ -472,19 +564,44 @@ function rWeek(n){
   const todayDow=n.getDay();
   let html=card("WEEKLY THEORY SCHEDULE",
     `<div class="sm" style="margin-top:-4px">Venue: Fourth Floor LH-5 · 01.06.2026 – 12.09.2026<br>Slots: 9–12 · 12–1 · 1–2 (free) · 2–3 · 3–4 · 4–5</div>`);
+  const z=loadZoneB();
   for(let dow=1;dow<=6;dow++){
     const isToday=dow===todayDow;
-    const cells=WEEK[dow].map(p=>{
+    const date=recentDateForDow(dow);
+    const iso=isoDate(date);
+    const markable=(WEEK[dow]||[]).filter(p=>p.nmc!=="none");
+    const marked=markable.filter(p=>z.marks[iso+"__"+p.s]).length;
+    const cells=(WEEK[dow]||[]).map(p=>{
       const c=C[p.vt];
-      return`<div class="cell ${p.vt==="free"?"free":""}" style="border-color:${c.bd};background:${c.bg}">
+      if(p.vt==="free"){
+        return`<div class="cell free" style="border-color:${c.bd};background:${c.bg}">
+          <div class="cell-time" style="color:${c.tx}">${shr(p.s,p.e)}</div>
+          <div class="cell-sub" style="color:var(--muted)">${p.sub}</div>
+        </div>`;
+      }
+      const mk=z.marks[iso+"__"+p.s];
+      const st=mk?mk.status:"unmarked";
+      const mkCls=st!=="unmarked"?` mk-${st}`:"";
+      const dot=st!=="unmarked"?`<span class="cell-dot"></span>`:"";
+      const stLbl=st==="present"?"✓":st==="absent"?"✗":st==="cancelled"?"—":"";
+      return`<button class="cell${mkCls}" style="border-color:${c.bd};background:${c.bg}" onclick="cycleMark('${iso}',${p.s},'${esc(p.sub)}','${p.nmc}')">
+        ${dot}
         <div class="cell-time" style="color:${c.tx}">${shr(p.s,p.e)}</div>
-        <div class="cell-sub" style="color:${p.vt==="free"?"var(--muted)":"var(--text)"}">${p.sub}</div>
-      </div>`;
+        <div class="cell-sub" style="color:var(--text)">${p.sub}</div>
+        ${stLbl?`<div class="cell-st">${stLbl}</div>`:""}
+      </button>`;
     }).join("");
     html+=`<div class="daycard ${isToday?"today":""}">
       <div class="dayhead">
         <span class="dayname">${DAYS[dow]}</span>
-        ${isToday?`<span class="daytag">● Today</span>`:""}
+        <div style="display:flex;align-items:center;gap:8px">
+          ${isToday?`<span class="daytag">● Today</span>`:""}
+          <span class="day-count">${marked}/${markable.length}</span>
+        </div>
+      </div>
+      <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap">
+        <button class="btn sm" onclick="quickMark('${iso}',${dow},'present')">✓ All Present</button>
+        <button class="btn sm" onclick="quickMark('${iso}',${dow},'cancelled')">— All Cancelled</button>
       </div>
       <div class="cells">${cells}</div>
     </div>`;
@@ -561,7 +678,7 @@ function rAttend(n){
         ${bar(aPrPct,PR_THR)}
       </div>`;
     } else {
-      aInner+=`<div class="note">No practical/clinical figures on the portal yet — tap “Edit baseline” to add them per subject.</div>`;
+      aInner+=`<div class="note">No practical/clinical figures on the portal yet — tap "Edit baseline" to add them per subject.</div>`;
     }
     aInner+=za.map(s=>{
       const th=s.tT?s.tP/s.tT*100:null;
