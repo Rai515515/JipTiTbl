@@ -87,11 +87,11 @@ body::after{content:'';position:fixed;top:-120px;right:-120px;width:400px;height
 .cell-time{font-size:11px;font-weight:700;opacity:.95;margin-bottom:2px}
 .cell-sub{font-size:13px;font-weight:700;line-height:1.25}
 /* ── buttons / inputs ── */
-.btn{min-height:44px;padding:0 16px;border-radius:11px;border:1px solid var(--border2);background:var(--card2);color:var(--text);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
+.btn{min-height:48px;padding:0 16px;border-radius:11px;border:1px solid var(--border2);background:var(--card2);color:var(--text);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s}
 .btn:active{transform:scale(.97)}
 .btn.primary{background:var(--indigo-bg);border-color:var(--indigo);color:#D6DAFF}
 .btn.danger{background:var(--red-bg);border-color:var(--red);color:var(--red-tx)}
-.btn.sm{min-height:38px;padding:0 12px;font-size:13px}
+.btn.sm{min-height:44px;padding:0 13px;font-size:13px}
 .btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:6px}
 .inp{width:100%;min-height:44px;background:#0f1116;border:1px solid var(--border2);border-radius:10px;color:var(--text);font-family:inherit;font-size:15px;padding:0 10px;text-align:center}
 .inp:focus{outline:none;border-color:var(--indigo)}
@@ -186,6 +186,47 @@ button.cell:active{transform:scale(.95)}
 .cell.mk-present .cell-st{color:var(--green-tx)}
 .cell.mk-absent .cell-st{color:var(--red-tx)}
 .cell.mk-cancelled .cell-st{color:var(--amber-tx)}
+/* ── clinics → posting attribution ── */
+.cell-dept{font-size:10px;font-weight:800;color:var(--green-tx);margin-top:2px;line-height:1.15}
+.slot-dept{font-size:12.5px;font-weight:800;color:var(--green-tx);margin-top:3px}
+.now-posting{display:flex;align-items:center;gap:8px;margin-top:11px;padding:11px 13px;border-radius:12px;background:var(--green-bg);border:1px solid var(--green);color:var(--green-tx);font-size:13.5px;font-weight:800;line-height:1.35}
+.cell.clinic{padding:0}
+.cell-mark{flex:1;width:100%;min-height:56px;background:transparent;border:none;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:9px 10px;display:flex;flex-direction:column;justify-content:center;border-radius:11px}
+.cell-mark:active{transform:scale(.96)}
+.reassign{position:absolute;bottom:6px;right:6px;min-height:28px;height:28px;padding:0 9px;border-radius:8px;border:1px solid var(--border2);background:rgba(0,0,0,.32);color:var(--text);font-size:14px;font-weight:800;cursor:pointer;line-height:1;z-index:2}
+.reassign:active{transform:scale(.9)}
+.pchip.clinic{padding:0}
+.pc-mark{flex:1;width:100%;min-height:60px;background:transparent;border:none;color:inherit;font:inherit;text-align:left;cursor:pointer;padding:8px 9px;display:flex;flex-direction:column;justify-content:center;gap:1px;border-radius:11px}
+.pc-mark:active{transform:scale(.97)}
+.pc-dept{font-size:11.5px;font-weight:800;color:var(--green-tx);margin-top:1px}
+/* ── clinic dept picker (bottom sheet) ── */
+.picker-overlay{position:fixed;inset:0;z-index:50;background:rgba(0,0,0,.62);display:none;align-items:flex-end;justify-content:center}
+.picker-sheet{background:var(--card);border:1px solid var(--border2);border-radius:20px 20px 0 0;width:100%;max-width:480px;max-height:82vh;overflow-y:auto;padding:18px 16px calc(20px + env(safe-area-inset-bottom));box-shadow:0 -12px 44px rgba(0,0,0,.55)}
+.picker-title{font-size:17px;font-weight:800;color:var(--text);margin-bottom:4px}
+.picker-help{font-size:13px;color:var(--muted);margin-bottom:15px;font-weight:500;line-height:1.45}
+.picker-list{display:flex;flex-direction:column;gap:9px;margin-bottom:13px}
+.dept-opt{display:flex;align-items:center;justify-content:space-between;gap:10px;min-height:56px;padding:10px 16px;border-radius:13px;border:1px solid var(--border2);background:var(--card2);color:var(--text);font-family:inherit;font-size:15px;font-weight:700;cursor:pointer;text-align:left}
+.dept-opt:active{transform:scale(.985)}
+.dept-opt.sel{border-color:var(--green);background:var(--green-bg)}
+.dept-name{flex:1;line-height:1.3}
+.dept-sub{font-size:12px;color:var(--muted);font-weight:600}
+.dept-check{color:var(--green-tx);font-weight:900;font-size:18px;flex-shrink:0}
+/* ── how-marking help ── */
+.howto{background:var(--card2);border:1px solid var(--border);border-radius:13px;margin-bottom:14px;overflow:hidden}
+.howto summary{list-style:none;cursor:pointer;padding:14px 15px;font-size:14px;font-weight:800;color:var(--text);display:flex;align-items:center;gap:8px;min-height:48px}
+.howto summary::-webkit-details-marker{display:none}
+.howto summary::after{content:"▸";margin-left:auto;color:var(--muted);transition:transform .2s;font-size:13px}
+.howto[open] summary::after{transform:rotate(90deg)}
+.howto .howbody{padding:0 15px 15px;font-size:13.5px;color:var(--sub);line-height:1.6;font-weight:500}
+/* ── per-posting summary ── */
+.pblock{background:var(--card2);border:1px solid var(--border);border-radius:14px;padding:13px;margin-bottom:10px}
+.pblock.current{border-color:var(--indigo);box-shadow:0 0 0 1px var(--indigo)}
+.pblock-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:5px}
+.pblock-name{font-size:15px;font-weight:800;color:var(--text)}
+.pblock-cur{font-size:10px;font-weight:800;color:var(--indigo-tx);text-transform:uppercase;letter-spacing:.5px;background:var(--indigo-bg);padding:2px 7px;border-radius:8px;margin-left:8px;vertical-align:middle}
+.pblock-range{font-size:11.5px;color:var(--muted);font-weight:600;white-space:nowrap}
+.pblock-val{font-size:13px;font-weight:800;white-space:nowrap}
+.pblock-empty{font-size:12.5px;color:var(--muted);font-weight:600;padding:3px 0}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 </style>
 </head>
@@ -209,6 +250,14 @@ button.cell:active{transform:scale(.95)}
   </div>
   <div id="content"></div>
   <input type="file" id="importFile" accept="application/json,.json" style="display:none"/>
+</div>
+<div id="picker" class="picker-overlay" onclick="if(event.target===this)closeClinicPicker()">
+  <div class="picker-sheet">
+    <div class="picker-title">Which posting were you in?</div>
+    <div class="picker-help">Clinics on <b id="picker-date"></b>. Pick the department this day's clinic counts toward. <b>Auto</b> follows your rotation schedule.</div>
+    <div class="picker-list" id="picker-list"></div>
+    <button class="btn" style="width:100%" onclick="closeClinicPicker()">Cancel</button>
+  </div>
 </div>
 <script>
 /* ─────────────────────────────────────────────────────────────
@@ -395,7 +444,21 @@ function recentDateForDow(dow){
 /* ── persistence ── */
 function loadZoneA(){try{const r=localStorage.getItem(LSA);if(r){const o=JSON.parse(r);if(Array.isArray(o)&&o.length)return o;}}catch(e){}return defaultZoneA();}
 function saveZoneA(z){try{localStorage.setItem(LSA,JSON.stringify(z));}catch(e){}}
-function loadZoneB(){try{const r=localStorage.getItem(LSB);if(r){const o=JSON.parse(r);if(o&&o.marks)return o;}}catch(e){}return{marks:{}};}
+function loadZoneB(){
+  let o={marks:{},clinicDept:{}};
+  try{const r=localStorage.getItem(LSB);if(r){const p=JSON.parse(r);if(p&&p.marks)o=p;}}catch(e){}
+  if(!o.clinicDept)o.clinicDept={};
+  /* migrate older generic clinics marks → posting attribution (never deleted) */
+  for(const k in o.marks){
+    const mk=o.marks[k];if(!mk)continue;
+    if((mk.clinic||mk.sub==="Clinics")&&!mk.dept){
+      const iso=mk.date||k.split("__")[0];
+      const dept=o.clinicDept[iso]||postingForDate(iso)||"Unassigned";
+      mk.clinic=true;mk.dept=dept;mk.sub=dept;mk.kind="practical";
+    }
+  }
+  return o;
+}
 function saveZoneB(z){try{localStorage.setItem(LSB,JSON.stringify(z));}catch(e){}}
 
 function weekSlotsForTH(dow,thSlot){
@@ -417,10 +480,26 @@ window.cycleMarkTH=function(iso,dow,thS,thE){
   ws.forEach(p=>{
     const key=iso+"__"+p.s;
     if(nxt==="unmarked")delete z.marks[key];
-    else z.marks[key]={status:nxt,sub:p.sub,kind:p.nmc,date:iso,start:p.s};
+    else z.marks[key]=mkObj(iso,p.s,p.sub,p.nmc,nxt);
   });
   saveZoneB(z);render();
 };
+
+/* ── clinics ↔ clinical-posting attribution ── */
+function postingForDate(iso){const d=pd(iso);const p=CP.find(x=>x.type==="posting"&&d>=pd(x.s)&&d<=pd(x.e));return p?p.sub:null;}
+function clinicDeptFor(iso){const z=loadZoneB();if(z.clinicDept&&z.clinicDept[iso])return z.clinicDept[iso];const m=z.marks[iso+"__9"];if(m&&m.dept)return m.dept;return postingForDate(iso)||"Unassigned";}
+function deptList(){const out=[];CP.forEach(p=>{if(p.type==="posting"&&!out.includes(p.sub))out.push(p.sub);});return out;}
+function ddmm(iso){const d=pd(iso);return String(d.getDate()).padStart(2,"0")+"."+String(d.getMonth()+1).padStart(2,"0");}
+function fmtIso(iso){const d=pd(iso);return d.getDate()+" "+MONTHS[d.getMonth()]+" "+d.getFullYear();}
+/* build a mark object; clinics auto-attribute to the active posting department */
+function mkObj(iso,start,sub,kind,status){
+  if(sub==="Clinics"){
+    const z=loadZoneB();const key=iso+"__"+start;
+    const dept=(z.clinicDept&&z.clinicDept[iso])||(z.marks[key]&&z.marks[key].dept)||postingForDate(iso)||"Unassigned";
+    return{status:status,sub:dept,kind:"practical",date:iso,start:start,clinic:true,dept:dept};
+  }
+  return{status:status,sub:sub,kind:kind,date:iso,start:start};
+}
 
 let tab="now", editA=false;
 function go(t){
@@ -453,16 +532,24 @@ function rNow(n){
     const mkSt=mkable?markStateForTH(iso,dow,active):"none";
     const mkLbl=mkSt==="present"?"✓ Present":mkSt==="absent"?"✗ Absent":mkSt==="cancelled"?"— Cancelled":"Tap to mark";
     const mkCol=mkSt==="present"?"var(--green-tx)":mkSt==="absent"?"var(--red-tx)":mkSt==="cancelled"?"var(--amber-tx)":"var(--muted)";
+    const isClin=active.sub==="Clinics";
+    const dept=isClin?clinicDeptFor(iso):null;
+    const noDept=dept==="Unassigned";
     ci=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <div style="width:11px;height:11px;border-radius:50%;background:${c.dot};box-shadow:0 0 8px ${c.dot};flex-shrink:0"></div>
           <span class="big" style="margin:0">${active.sub}</span>
         </div>
+        ${isClin?`<div class="slot-dept">${noDept?"Posting not set — tap ⋯ Posting":dept+" posting"}</div>`:""}
         <div class="sm">${fh(active.s)} → ${fh(active.e)}</div>
         <div class="track"><div class="fill" style="width:${p}%;background:linear-gradient(90deg,${c.dot},${c.tx})"></div></div>
         <div class="pct-lbl">${p}% through this period</div>
+        ${isClin?`<div class="now-posting">📍 ${noDept?"Clinics — tap ⋯ Posting to set your department":"You're in "+dept+" posting right now"}</div>`:""}
         ${mkable?`<div class="mk-row">
-          <span style="font-size:13px;font-weight:700;color:${mkCol}">${mkLbl}</span>
-          <button class="btn sm" onclick="cycleMarkTH('${iso}',${dow},${active.s},${active.e})">Mark ↻</button>
+          <span style="font-size:13.5px;font-weight:800;color:${mkCol}">${mkLbl}</span>
+          <div style="display:flex;gap:8px">
+            ${isClin?`<button class="btn sm" onclick="openClinicPicker('${iso}')">⋯ Posting</button>`:""}
+            <button class="btn sm" onclick="cycleMarkTH('${iso}',${dow},${active.s},${active.e})">Mark ↻</button>
+          </div>
         </div>`:""}`;
   } else if(h<9){
     ci=`<div class="muted-txt">Classes start at 9:00 AM ☀️</div>`;
@@ -542,6 +629,10 @@ function rToday(n){
     const mkDot=mkSt!=="none"&&mkSt!=="unmarked"?`<span class="slot-dot"></span>`:"";
     const mkLbl=mkSt==="present"?"✓ Present":mkSt==="absent"?"✗ Absent":mkSt==="cancelled"?"— Cancelled":"";
     const mkCol=mkSt==="present"?"var(--green-tx)":mkSt==="absent"?"var(--red-tx)":mkSt==="cancelled"?"var(--amber-tx)":"var(--muted)";
+    const isClin=sl.sub==="Clinics";
+    const dept=isClin?clinicDeptFor(iso):null;
+    const rowLbl=mkLbl||(isClin?"Tap to mark today's clinic":"");
+    const showRow=mkable&&(mkLbl||isClin);
     html+=`<div class="slot ${isNow?"now":""} ${isPast?"past":""}${mkCls}${mkable?" tappable":""}" ${isNow?`style="border-color:${c.bd};background:${c.bg}"`:""}${mkable?` onclick="cycleMarkTH('${iso}',${dow},${sl.s},${sl.e})"`:""}>
       ${mkDot}
       <div class="slot-accent" style="background:${c.dot};box-shadow:0 0 8px ${c.dot}"></div>
@@ -549,11 +640,15 @@ function rToday(n){
         <div>
           <div class="slot-name">${sl.sub}</div>
           <div class="slot-time">${fh(sl.s)} – ${fh(sl.e)}</div>
+          ${isClin?`<div class="slot-dept">${dept==="Unassigned"?"Posting not set":dept+" posting"}</div>`:""}
         </div>
         ${pill(isNow?"● NOW":isPast?"done":sl.type,c)}
       </div>
       ${isNow?`<div class="track"><div class="fill" style="width:${p}%;background:linear-gradient(90deg,${c.dot},${c.tx})"></div></div>`:""}
-      ${mkable&&mkLbl?`<div class="mk-row"><span style="font-size:12px;font-weight:700;color:${mkCol}">${mkLbl}</span></div>`:""}
+      ${showRow?`<div class="mk-row">
+        <span style="font-size:12.5px;font-weight:800;color:${mkCol}">${rowLbl}</span>
+        ${isClin?`<button class="btn sm" onclick="event.stopPropagation();openClinicPicker('${iso}')">⋯ Posting</button>`:""}
+      </div>`:""}
     </div>`;
   });
   return html;
@@ -584,6 +679,19 @@ function rWeek(n){
       const mkCls=st!=="unmarked"?` mk-${st}`:"";
       const dot=st!=="unmarked"?`<span class="cell-dot"></span>`:"";
       const stLbl=st==="present"?"✓":st==="absent"?"✗":st==="cancelled"?"—":"";
+      if(p.vt==="clinic"){
+        const dept=clinicDeptFor(iso);
+        return`<div class="cell clinic${mkCls}" style="border-color:${c.bd};background:${c.bg}">
+          ${dot}
+          <button class="cell-mark" onclick="cycleMark('${iso}',${p.s},'Clinics','practical')">
+            <div class="cell-time" style="color:${c.tx}">${shr(p.s,p.e)}</div>
+            <div class="cell-sub" style="color:var(--text)">Clinics</div>
+            <div class="cell-dept">${dept==="Unassigned"?"set posting →":dept}</div>
+            ${stLbl?`<div class="cell-st">${stLbl}</div>`:""}
+          </button>
+          <button class="reassign" title="Reassign posting" onclick="openClinicPicker('${iso}')">⋯</button>
+        </div>`;
+      }
       return`<button class="cell${mkCls}" style="border-color:${c.bd};background:${c.bg}" onclick="cycleMark('${iso}',${p.s},'${esc(p.sub)}','${p.nmc}')">
         ${dot}
         <div class="cell-time" style="color:${c.tx}">${shr(p.s,p.e)}</div>
@@ -632,14 +740,31 @@ function zbStats(){
     if(!mk||(mk.status!=="present"&&mk.status!=="absent"))continue;
     const kind=mk.kind;
     if(kind==="theory"||kind==="practical")out[kind][mk.status==="present"?"p":"a"]++;
-    const s=out.subjects[mk.sub]||(out.subjects[mk.sub]={p:0,a:0,kind:kind});
-    s[mk.status==="present"?"p":"a"]++;
+    const s=out.subjects[mk.sub]||(out.subjects[mk.sub]={tP:0,tA:0,pP:0,pA:0});
+    if(kind==="theory")s[mk.status==="present"?"tP":"tA"]++;
+    else if(kind==="practical")s[mk.status==="present"?"pP":"pA"]++;
   }
   return out;
+}
+/* clinics attendance that falls inside a posting block's date range */
+function postingAttendance(block){
+  const z=loadZoneB();let p=0,a=0;
+  for(const k in z.marks){
+    const mk=z.marks[k];if(!mk||!mk.clinic)continue;
+    const d=pd(mk.date);
+    if(d>=pd(block.s)&&d<=pd(block.e)){
+      if(mk.status==="present")p++;else if(mk.status==="absent")a++;
+    }
+  }
+  return{p:p,a:a};
 }
 
 function rAttend(n){
   let html="";
+  /* how marking works (collapsible, plain language) */
+  html+=`<details class="howto"><summary>ℹ️ How marking works</summary>
+    <div class="howbody">Tap any class to cycle through <b>✓ Present → ✗ Absent → — Cancelled → (clear)</b>. Each state has its own icon, so it reads clearly in any colour. <b>Cancelled</b> classes are dropped from the maths — they never count against you. Your 9–12 <b>Clinics</b> automatically count toward whichever clinical posting you're in that day; tap <b>⋯ Posting</b> to reassign a day if you were swapped to another department.</div>
+  </details>`;
   /* top banner */
   html+=`<div class="banner">📋 Your college portal is your <b>REAL</b> eligibility record. This tracker is a personal estimate only.</div>`;
 
@@ -715,6 +840,19 @@ function rAttend(n){
       const st=m?m.status:"unmarked";
       const sym=st==="present"?"✓ Present":st==="absent"?"✗ Absent":st==="cancelled"?"— Cancelled":"Tap to mark";
       const dot=st!=="unmarked"?`<span class="pc-dot"></span>`:"";
+      if(p.sub==="Clinics"){
+        const dept=clinicDeptFor(iso);
+        return`<div class="pchip clinic ${st}">
+          ${dot}
+          <button class="pc-mark" onclick="cycleMark('${iso}',${p.s},'Clinics','practical')">
+            <div class="pc-sub">Clinics</div>
+            <div class="pc-time">${shr(p.s,p.e)} · clinical</div>
+            <div class="pc-dept">${dept==="Unassigned"?"⋯ set posting":dept}</div>
+            <div class="pc-status">${sym}</div>
+          </button>
+          <button class="reassign" title="Reassign posting" onclick="openClinicPicker('${iso}')">⋯</button>
+        </div>`;
+      }
       return`<button class="pchip ${st}" onclick="cycleMark('${iso}',${p.s},'${esc(p.sub)}','${p.nmc}')">
         ${dot}
         <div class="pc-sub">${p.sub}</div>
@@ -735,6 +873,36 @@ function rAttend(n){
     </div>`;
   }
   html+=`<div class="zone b">${bInner}</div>`;
+
+  /* ── PER-POSTING (clinics) SUMMARY ── */
+  const apNow=getActive(n);
+  const startedP=CP.filter(p=>p.type==="posting"&&pd(p.s)<=tod(n));
+  let ppInner=`<div class="zone-title">🩺 Postings attendance</div>
+    <div class="zone-sub">Your 9–12 clinics, grouped by clinical posting. Each rolls into that subject's practical (need ≥${PR_THR}%).</div>`;
+  if(!startedP.length){
+    ppInner+=`<div class="muted-txt">No clinical postings have started yet.</div>`;
+  } else {
+    const ordered=startedP.slice().sort((a,b)=>pd(b.s)-pd(a.s));
+    if(apNow){const i=ordered.findIndex(x=>x.s===apNow.s);if(i>0){const cur=ordered.splice(i,1)[0];ordered.unshift(cur);}}
+    ordered.forEach(blk=>{
+      const isCur=apNow&&apNow.s===blk.s;
+      const att=postingAttendance(blk);const tot=att.p+att.a;
+      const pct=tot?att.p/tot*100:null;
+      const col=pct===null?'var(--muted)':colorFor(pct,PR_THR);
+      ppInner+=`<div class="pblock ${isCur?"current":""}">
+        <div class="pblock-head">
+          <span class="pblock-name">${blk.sub}${isCur?'<span class="pblock-cur">Current</span>':""}</span>
+          <span class="pblock-range">${ddmm(blk.s)} – ${ddmm(blk.e)}</span>
+        </div>
+        ${tot?`<div class="pblock-head" style="margin-bottom:7px">
+            <span class="pblock-range">✓ ${att.p} present · ✗ ${att.a} absent</span>
+            <span class="pblock-val" style="color:${col}">${att.p}/${tot} · ${Math.round(pct)}%</span>
+          </div>${bar(pct,PR_THR)}`
+        :`<div class="pblock-empty">No clinics marked yet${isCur?" — tap a Clinics block to start":""}.</div>`}
+      </div>`;
+    });
+  }
+  html+=`<div class="zone">${ppInner}</div>`;
 
   /* ── STATISTICS (Zone B) ── */
   const st=zbStats();
@@ -780,16 +948,24 @@ function rAttend(n){
         sInner+=`<div class="buffer low">Practical: attend the next <b>${y}</b> practical session${y===1?"":"s"} to reach ${PR_THR}%.</div>`;}
     }
 
-    /* per-subject */
-    sInner+=`<div style="margin-top:14px">`;
+    /* per-subject — theory + practical tracked separately */
+    sInner+=`<div style="margin-top:14px"><div class="zone-sub" style="margin-bottom:4px">Per subject</div>`;
     const subs=Object.keys(st.subjects).sort();
     subs.forEach(name=>{
-      const s=st.subjects[name];const tot=s.p+s.a;const pct=tot?s.p/tot*100:0;
-      const thr=s.kind==="practical"?PR_THR:TH_THR;const col=colorFor(pct,thr);
+      const s=st.subjects[name];
+      const tTotS=s.tP+s.tA, pTotS=s.pP+s.pA;
+      if(tTotS===0&&pTotS===0)return;
+      const tPctS=tTotS?s.tP/tTotS*100:null, pPctS=pTotS?s.pP/pTotS*100:null;
+      const tColS=tPctS===null?'var(--muted)':colorFor(tPctS,TH_THR);
+      const pColS=pPctS===null?'var(--muted)':colorFor(pPctS,PR_THR);
       sInner+=`<div class="subline">
-        <div class="subrow"><span class="subname">${name} <span class="sm" style="color:var(--muted)">${s.kind}</span></span>
-          <span class="subval" style="color:${col}">${Math.round(pct)}% (${s.p}/${tot})</span></div>
-        <div class="minibar"><div style="width:${Math.min(100,pct)}%;background:${col}"></div></div>
+        <div class="subrow"><span class="subname">${name}</span></div>
+        ${tTotS?`<div class="subrow"><span class="sm" style="color:var(--muted)">Theory</span>
+            <span class="subval" style="color:${tColS}">${Math.round(tPctS)}% (${s.tP}/${tTotS})</span></div>
+          <div class="minibar"><div style="width:${Math.min(100,tPctS)}%;background:${tColS}"></div></div>`:""}
+        ${pTotS?`<div class="subrow" style="margin-top:5px"><span class="sm" style="color:var(--muted)">Practical / clinics</span>
+            <span class="subval" style="color:${pColS}">${Math.round(pPctS)}% (${s.pP}/${pTotS})</span></div>
+          <div class="minibar"><div style="width:${Math.min(100,pPctS)}%;background:${pColS}"></div></div>`:""}
       </div>`;
     });
     sInner+=`</div>`;
@@ -822,17 +998,42 @@ window.cycleMark=function(iso,start,sub,kind){
   const order=["unmarked","present","absent","cancelled"];
   const nxt=order[(order.indexOf(cur)+1)%order.length];
   if(nxt==="unmarked")delete z.marks[key];
-  else z.marks[key]={status:nxt,sub:sub,kind:kind,date:iso,start:start};
+  else z.marks[key]=mkObj(iso,start,sub,kind,nxt);
   saveZoneB(z);render();
 };
 window.quickMark=function(iso,dow,status){
   const z=loadZoneB();
   (WEEK[dow]||[]).forEach(p=>{
     if(p.nmc==="none")return;
-    const key=iso+"__"+p.s;
-    z.marks[key]={status:status,sub:p.sub,kind:p.nmc,date:iso,start:p.s};
+    z.marks[iso+"__"+p.s]=mkObj(iso,p.s,p.sub,p.nmc,status);
   });
   saveZoneB(z);render();
+};
+/* ── clinic department picker (manual override) ── */
+window.openClinicPicker=function(iso){
+  const z=loadZoneB();const overridden=!!(z.clinicDept&&z.clinicDept[iso]);
+  const cur=clinicDeptFor(iso);const auto=postingForDate(iso)||"Unassigned";
+  let h=`<button class="dept-opt${!overridden?" sel":""}" onclick="assignClinicDept('${iso}','__auto__')">
+    <span class="dept-name">Auto · follow my rotation<br><span class="dept-sub">Currently: ${auto}</span></span>${!overridden?'<span class="dept-check">✓</span>':""}</button>`;
+  deptList().forEach(d=>{
+    const sel=overridden&&cur===d;
+    h+=`<button class="dept-opt${sel?" sel":""}" onclick="assignClinicDept('${iso}','${esc(d)}')"><span class="dept-name">${d}</span>${sel?'<span class="dept-check">✓</span>':""}</button>`;
+  });
+  const unsel=overridden&&cur==="Unassigned";
+  h+=`<button class="dept-opt${unsel?" sel":""}" onclick="assignClinicDept('${iso}','Unassigned')"><span class="dept-name">Unassigned</span>${unsel?'<span class="dept-check">✓</span>':""}</button>`;
+  document.getElementById("picker-list").innerHTML=h;
+  document.getElementById("picker-date").textContent=fmtIso(iso);
+  document.getElementById("picker").style.display="flex";
+};
+window.closeClinicPicker=function(){document.getElementById("picker").style.display="none";};
+window.assignClinicDept=function(iso,dept){
+  const z=loadZoneB();if(!z.clinicDept)z.clinicDept={};
+  let realDept;
+  if(dept==="__auto__"){delete z.clinicDept[iso];realDept=postingForDate(iso)||"Unassigned";}
+  else{z.clinicDept[iso]=dept;realDept=dept;}
+  const key=iso+"__9";
+  if(z.marks[key]){z.marks[key].dept=realDept;z.marks[key].sub=realDept;z.marks[key].clinic=true;z.marks[key].kind="practical";}
+  saveZoneB(z);closeClinicPicker();render();
 };
 window.toggleEditA=function(){editA=true;render();};
 window.cancelEditA=function(){editA=false;render();};
