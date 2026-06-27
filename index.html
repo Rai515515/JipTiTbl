@@ -6,7 +6,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <meta name="apple-mobile-web-app-title" content="JIPMER"/>
-<title>JIPMER · Batch C</title>
+<title>Clinical Timetable</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 :root{
@@ -235,7 +235,7 @@ button.cell:active{transform:scale(.95)}
   <div class="header">
     <div class="badge-row">
       <div class="live-dot"></div>
-      <span class="badge-text">JIPMER Karaikal · Batch C · VI Sem</span>
+      <span class="badge-text">Clinical Timetable · VI Semester</span>
     </div>
     <div class="clock" id="clk">--:--:--</div>
     <div class="date-lbl" id="dlbl">Loading…</div>
@@ -260,14 +260,14 @@ button.cell:active{transform:scale(.95)}
   </div>
 </div>
 <script>
-/* ─────────────────────────────────────
+/* ──────────────────────────────────────────
    THEORY SCHEDULE  (times in decimal hours) — used by Now/Today
    Effective 01.06.2026 – 12.09.2026 · Venue: Fourth Floor LH-5
    • Clinics 09:00–12:00
    • 12:00–13:00 class slot (subject varies by day)
    • 13:00–14:00 free period (no scheduled class)
    • Afternoon slots 14:00 onwards
-────────────────────────────────────── */
+────────────────────────────────────────── */
 const TH = {
   1:[ // Monday
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
@@ -305,11 +305,11 @@ const TH = {
   ],
 };
 
-/* ─────────────────────────────────────
+/* ──────────────────────────────────────────
    WEEK GRID  (hourly cells) — drives the Week tab + attendance
    vt  = visual type (color): clinic | theory | modular | free
    nmc = NMC classification: practical | theory | none
-────────────────────────────────────── */
+────────────────────────────────────────── */
 const WEEK = {
   1:[ // Monday
     {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
@@ -357,10 +357,10 @@ const WEEK = {
   ],
 };
 
-/* ─────────────────────────────────────
-   BATCH C — CLINICAL POSTINGS  (all 45 weeks)
+/* ──────────────────────────────────────────
+   CLINICAL POSTINGS — ROTATION  (all 45 weeks)
    type: "posting" | "exam" | "vacation"
-────────────────────────────────────── */
+────────────────────────────────────────── */
 const CP = [
   {s:"2026-04-20",e:"2026-05-03",sub:"Pulmonary Medicine",                    type:"posting"},
   {s:"2026-05-04",e:"2026-05-17",sub:"Medicine",                              type:"posting"},
@@ -391,15 +391,15 @@ const CP = [
   {s:"2027-02-15",e:"2027-02-28",sub:"Ophthalmology — Send Up Exam",          type:"exam"},
 ];
 
-/* ── Zone A default baseline (Third-Year 2023 Batch portal numbers) ── */
+/* ── Zone A default baseline (empty — fill in from your own portal on-device) ── */
 function defaultZoneA(){return[
-  {name:"Ophthalmology",                tP:5,  tT:8,  pP:null, pT:null},
-  {name:"ENT (Oto-Rhino-Laryngology)",  tP:4,  tT:5,  pP:null, pT:null},
-  {name:"General Medicine",             tP:14, tT:17, pP:null, pT:null},
-  {name:"General Surgery",              tP:1,  tT:1,  pP:null, pT:null},
-  {name:"Obstetrics & Gynaecology",     tP:8,  tT:11, pP:null, pT:null},
-  {name:"Orthopedics",                  tP:3,  tT:4,  pP:null, pT:null},
-  {name:"Psychiatry",                   tP:12, tT:17, pP:null, pT:null},
+  {name:"Ophthalmology",                tP:null, tT:null, pP:null, pT:null},
+  {name:"ENT (Oto-Rhino-Laryngology)",  tP:null, tT:null, pP:null, pT:null},
+  {name:"General Medicine",             tP:null, tT:null, pP:null, pT:null},
+  {name:"General Surgery",              tP:null, tT:null, pP:null, pT:null},
+  {name:"Obstetrics & Gynaecology",     tP:null, tT:null, pP:null, pT:null},
+  {name:"Orthopedics",                  tP:null, tT:null, pP:null, pT:null},
+  {name:"Psychiatry",                   tP:null, tT:null, pP:null, pT:null},
 ];}
 
 const DAYS   = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
@@ -511,7 +511,7 @@ function go(t){
 function card(lbl,inner){return`<div class="card"><div class="card-lbl">${lbl}</div>${inner}</div>`;}
 function pill(txt,c){return`<span class="pill" style="background:${c.bg};border-color:${c.bd};color:${c.tx}">${txt}</span>`;}
 
-/* ─────────────────────── RIGHT NOW ─────────────────────── */
+/* ────────────────────── RIGHT NOW ────────────────────── */
 function rNow(n){
   const dow=n.getDay(),h=n.getHours(),m=n.getMinutes(),cur=h+m/60;
   const slots=TH[dow]||[];
@@ -597,7 +597,7 @@ function rNow(n){
   return html;
 }
 
-/* ─────────────────────── TODAY ─────────────────────── */
+/* ────────────────────── TODAY ────────────────────── */
 function rToday(n){
   const dow=n.getDay(),h=n.getHours(),m=n.getMinutes(),cur=h+m/60;
   const slots=TH[dow]||[];
@@ -654,7 +654,7 @@ function rToday(n){
   return html;
 }
 
-/* ─────────────────────── WEEK ─────────────────────── */
+/* ────────────────────── WEEK ────────────────────── */
 function rWeek(n){
   const todayDow=n.getDay();
   let html=card("WEEKLY THEORY SCHEDULE",
@@ -717,7 +717,7 @@ function rWeek(n){
   return html;
 }
 
-/* ─────────────────────── ATTEND ─────────────────────── */
+/* ────────────────────── ATTEND ────────────────────── */
 function bar(pct,thr){
   const ok=pct>=thr;
   const col=ok?"var(--green)":"var(--red)";
@@ -775,7 +775,7 @@ function rAttend(n){
   const aThPct=aTT?aTP/aTT*100:0, aPrPct=aPT?aPP/aPT*100:0;
 
   let aInner=`<div class="zone-title">🏛️ Official Baseline</div>
-    <div class="zone-sub">Mirrors your college portal (Third-Year · 2023 Batch). Read-only — update by hand when you check the live portal.</div>`;
+    <div class="zone-sub">Enter your official portal figures here — they're saved only on this device, never in the app's code. Tap Edit baseline to update.</div>`;
 
   if(editA){
     aInner+=`<div class="editgrid">`+za.map((s,i)=>`
@@ -1082,7 +1082,7 @@ document.getElementById("importFile").addEventListener("change",function(ev){
   rd.readAsText(f);
 });
 
-/* ─────────────────────── POSTINGS ─────────────────────── */
+/* ────────────────────── POSTINGS ────────────────────── */
 function rPostings(n){
   const t=tod(n),ap=getActive(n);
   return CP.map(p=>{
