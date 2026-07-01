@@ -227,6 +227,19 @@ button.cell:active{transform:scale(.95)}
 .pblock-range{font-size:11.5px;color:var(--muted);font-weight:600;white-space:nowrap}
 .pblock-val{font-size:13px;font-weight:800;white-space:nowrap}
 .pblock-empty{font-size:12.5px;color:var(--muted);font-weight:600;padding:3px 0}
+/* ── surgery sub-posting ── */
+.subpost-banner{display:flex;align-items:center;gap:14px;background:linear-gradient(135deg,var(--indigo-bg),rgba(139,147,255,0.05));border:1px solid var(--indigo);border-radius:16px;padding:16px 18px;margin-bottom:14px;box-shadow:0 0 0 1px var(--indigo)}
+.subpost-ico{font-size:30px;line-height:1;flex-shrink:0}
+.subpost-lbl{font-size:11px;letter-spacing:1.5px;color:var(--indigo-tx);text-transform:uppercase;font-weight:700}
+.subpost-dept{font-size:27px;font-weight:800;color:var(--text);line-height:1.1;margin-top:2px}
+.subpost-none{background:var(--card2);border:1px dashed var(--border2);border-radius:14px;padding:13px 15px;margin-bottom:14px;font-size:13.5px;color:var(--muted);font-weight:600}
+.subrot-table{width:100%;border-collapse:collapse;margin-top:4px;font-size:13px}
+.subrot-table th{text-align:left;font-size:10.5px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);font-weight:700;padding:6px 8px;border-bottom:1px solid var(--border)}
+.subrot-table td{padding:8px;border-bottom:1px solid rgba(255,255,255,0.05);font-weight:600;color:var(--sub)}
+.subrot-table tr.today td{background:var(--indigo-bg);color:var(--text);font-weight:800}
+.subrot-table tr.past{opacity:.42}
+.subrot-tag{display:inline-block;padding:2px 9px;border-radius:8px;background:var(--card2);border:1px solid var(--border2);font-weight:700;font-size:12px;color:var(--text)}
+.subrot-table tr.today .subrot-tag{background:var(--indigo);border-color:var(--indigo);color:#fff}
 @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 </style>
 </head>
@@ -391,6 +404,52 @@ const CP = [
   {s:"2027-02-15",e:"2027-02-28",sub:"Ophthalmology — Send Up Exam",          type:"exam"},
 ];
 
+/* ─────────────────────────────────────────────────────────────
+   SURGERY POSTING — personal daily sub-department rotation (Roll 56)
+   Only surfaces on the Right Now / Today tabs while the current
+   clinical posting is "Surgery"; the full table lives in Postings.
+───────────────────────────────────────────────────────────── */
+const surgeryPosting56 = [
+  { date: "2026-06-30", dept: "OT" },
+  { date: "2026-07-01", dept: "FNAC" },
+  { date: "2026-07-02", dept: "Injection" },
+  { date: "2026-07-03", dept: "Trauma" },
+  { date: "2026-07-04", dept: "OPD" },
+  { date: "2026-07-06", dept: "Dressing" },
+  { date: "2026-07-07", dept: "Ortho" },
+  { date: "2026-07-08", dept: "OPD" },
+  { date: "2026-07-09", dept: "Trauma" },
+  { date: "2026-07-10", dept: "Dressing" },
+  { date: "2026-07-11", dept: "OT" },
+  { date: "2026-07-13", dept: "Ortho" },
+  { date: "2026-07-14", dept: "FNAC" },
+  { date: "2026-07-15", dept: "Ortho" },
+  { date: "2026-07-16", dept: "OPD" },
+  { date: "2026-07-17", dept: "OT" },
+  { date: "2026-07-18", dept: "Dressing" },
+  { date: "2026-07-20", dept: "Trauma" },
+  { date: "2026-07-21", dept: "OT" },
+  { date: "2026-07-22", dept: "Dressing" },
+  { date: "2026-07-23", dept: "Injection" },
+  { date: "2026-07-24", dept: "Trauma" },
+  { date: "2026-07-25", dept: "Injection" }
+];
+/* dept scheduled for a given ISO date, or null */
+function surgeryDeptFor(iso){const e=surgeryPosting56.find(x=>x.date===iso);return e?e.dept:null;}
+/* prominent banner for Right Now / Today — only while in the Surgery posting */
+function subPostBanner(n){
+  const ap=getActive(n);
+  if(!ap||ap.sub!=="Surgery")return"";
+  const dept=surgeryDeptFor(isoDate(tod(n)));
+  if(dept){
+    return`<div class="subpost-banner">
+      <div class="subpost-ico">🔪</div>
+      <div><div class="subpost-lbl">Today's Sub-Posting</div><div class="subpost-dept">${dept}</div></div>
+    </div>`;
+  }
+  return`<div class="subpost-none">🔪 Surgery posting · No sub-posting scheduled today.</div>`;
+}
+
 /* ── Zone A default baseline (empty — fill in from your own portal on-device) ── */
 function defaultZoneA(){return[
   {name:"Ophthalmology",                tP:null, tT:null, pP:null, pT:null},
@@ -519,7 +578,7 @@ function rNow(n){
   const next=slots.find(s=>s.s>cur);
   const ap=getActive(n),np=getNext(n);
   const iso=isoDate(tod(n));
-  let html="";
+  let html=subPostBanner(n);
 
   let ci="";
   if(dow===0){
@@ -601,15 +660,16 @@ function rNow(n){
 function rToday(n){
   const dow=n.getDay(),h=n.getHours(),m=n.getMinutes(),cur=h+m/60;
   const slots=TH[dow]||[];
-  if(dow===0) return card("SUNDAY",`<div class="muted-txt">No classes. Rest up! 🌴</div>`);
-  if(!slots.length) return card("TODAY",`<div class="muted-txt">No schedule</div>`);
+  const subBanner=subPostBanner(n);
+  if(dow===0) return subBanner+card("SUNDAY",`<div class="muted-txt">No classes. Rest up! 🌴</div>`);
+  if(!slots.length) return subBanner+card("TODAY",`<div class="muted-txt">No schedule</div>`);
 
   const iso=isoDate(tod(n));
   const z=loadZoneB();
   const allWSlots=(WEEK[dow]||[]).filter(p=>p.nmc!=="none");
   const markedCount=allWSlots.filter(p=>z.marks[iso+"__"+p.s]).length;
 
-  let html=`<div class="day-hdr">
+  let html=subBanner+`<div class="day-hdr">
     <div style="display:flex;gap:6px;flex-wrap:wrap">
       <button class="btn sm" onclick="quickMark('${iso}',${dow},'present')">✓ All Present</button>
       <button class="btn sm" onclick="quickMark('${iso}',${dow},'cancelled')">— All Cancelled</button>
@@ -1085,7 +1145,28 @@ document.getElementById("importFile").addEventListener("change",function(ev){
 /* ─────────────────────── POSTINGS ─────────────────────── */
 function rPostings(n){
   const t=tod(n),ap=getActive(n);
-  return CP.map(p=>{
+  const tISO=isoDate(t);
+  const inSurgery=ap&&ap.sub==="Surgery";
+  const subRows=surgeryPosting56.map(e=>{
+    const d=pd(e.date);
+    const isToday=e.date===tISO;
+    const isPast=d<t;
+    return`<tr class="${isToday?"today":isPast?"past":""}">
+      <td>${d.getDate()} ${MONTHS[d.getMonth()]}</td>
+      <td>${DSHORT[d.getDay()]}</td>
+      <td><span class="subrot-tag">${e.dept}</span></td>
+    </tr>`;
+  }).join("");
+  const subRot=`<details class="howto" ${inSurgery?"open":""}>
+    <summary>🔪 Surgery Sub-Rotation (Roll 56)</summary>
+    <div class="howbody">
+      <table class="subrot-table">
+        <thead><tr><th>Date</th><th>Day</th><th>Department</th></tr></thead>
+        <tbody>${subRows}</tbody>
+      </table>
+    </div>
+  </details>`;
+  return subRot+CP.map(p=>{
     const isActive=ap&&ap.s===p.s;
     const isPast=pd(p.e)<t;
     const isExam=p.type==="exam",isVac=p.type==="vacation";
