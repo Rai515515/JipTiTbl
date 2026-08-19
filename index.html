@@ -289,15 +289,15 @@ const TH = {
     {s:15, e:17, sub:"Modular Teaching",  type:"modular"},
   ],
   2:[ // Tuesday
-    {s:9,  e:12, sub:"Clinics",           type:"clinic"},
-    {s:12, e:13, sub:"PSM",               type:"theory"},
-    {s:14, e:17, sub:"FHAP",              type:"theory"},
+    {s:9,  e:12, sub:"Clinics",                            type:"clinic"},
+    {s:12, e:13, sub:"Community Medicine",                 type:"theory"},
+    {s:14, e:17, sub:"Community Med. Practical/Field work",type:"theory"},
   ],
   3:[ // Wednesday
-    {s:9,  e:12, sub:"Clinics",           type:"clinic"},
-    {s:12, e:13, sub:"OBG",               type:"theory"},
-    {s:14, e:15, sub:"Dermatology",       type:"theory"},
-    {s:15, e:17, sub:"Modular Teaching",  type:"modular"},
+    {s:9,  e:12, sub:"Clinics",                    type:"clinic"},
+    {s:12, e:13, sub:"Obstetrics & Gynaecology",    type:"theory"},
+    {s:14, e:15, sub:"Dermatology",                 type:"theory"},
+    {s:15, e:17, sub:"Modular Teaching",            type:"modular"},
   ],
   4:[ // Thursday
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
@@ -309,14 +309,131 @@ const TH = {
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
     {s:12, e:13, sub:"Surgery",           type:"theory"},
     {s:14, e:15, sub:"Psychiatry",        type:"theory"},
-    {s:15, e:16, sub:"Ophthalmology",     type:"theory"},
-    {s:16, e:17, sub:"OBG",              type:"theory"},
+    {s:15, e:16, sub:"Ophthalmology",              type:"theory"},
+    {s:16, e:17, sub:"Obstetrics & Gynaecology",   type:"theory"},
   ],
   6:[ // Saturday
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
     {s:12, e:13, sub:"Pulmonary Medicine",type:"theory"},
   ],
 };
+
+/* ────────────────────────────────────────
+   HOLIDAYS — no classes on these dates even though
+   they fall on a normal teaching weekday
+───────────────────────────────────────── */
+const HOLIDAYS = {
+  "2026-08-15":"Independence Day",
+  "2026-08-26":"Milad-un-Nabi / Id-e-Milad",
+};
+function isHoliday(iso){return HOLIDAYS.hasOwnProperty(iso);}
+
+/* ────────────────────────────────────────
+   DAILY TOPICS — from the official 10.08.2026–13.09.2026
+   academic calendar (source of truth for this window).
+   iso date → subject name (must match TH/WEEK "sub" strings)
+   → {topic, fac}. Dates/subjects left blank in the calendar
+   are simply omitted here. Outside this window, no topic shows.
+───────────────────────────────────────── */
+const TOPICS = {
+  "2026-08-10": {
+    "ENT": {topic:"Assessment of Vestibular Functions", fac:"Dr Vignesh K"},
+    "Modular Teaching": {topic:"Vestibular System", fac:"Dr Vignesh K and Dr Karthikeyan R"},
+  },
+  "2026-08-12": {
+    "Obstetrics & Gynaecology": {topic:"Test paper discussion", fac:"Dr. L. Anusha"},
+    "Dermatology": {topic:"Genital ulcerative diseases", fac:"Dr Geethanjali S"},
+    "Modular Teaching": {topic:"Vestibular System", fac:"Dr Vignesh K and Dr Karthikeyan R"},
+  },
+  "2026-08-13": {
+    "Orthopaedics": {topic:"Open fracture and fracture complication", fac:"Dr. Arul Kumar"},
+    "Modular Teaching": {topic:"Vestibular System", fac:"Dr Vignesh K and Dr Karthikeyan R"},
+    "Ophthalmology": {topic:"IA paper discussion; Cornea anatomy; Corneal ulcer types (bacterial, fungal, viral)"},
+  },
+  "2026-08-14": {
+    "Surgery": {topic:"Lower urinary tract symptoms with hematuria and its investigations"},
+    "Psychiatry": {topic:"Mood Disorders – II"},
+    "Ophthalmology": {topic:"Corneal ulcer complications and sequelae; Corneal opacity"},
+    "Obstetrics & Gynaecology": {topic:"Anaemia in pregnancy", fac:"Dr. L. Anusha"},
+  },
+  "2026-08-17": {
+    "ENT": {topic:"Ménière's Disease", fac:"Dr Karthikeyan R"},
+  },
+  "2026-08-19": {
+    "Obstetrics & Gynaecology": {topic:"Anaemia in pregnancy", fac:"Dr. L. Anusha"},
+    "Dermatology": {topic:"Urethral discharge", fac:"Dr Geethanjali S"},
+  },
+  "2026-08-20": {
+    "Orthopaedics": {topic:"Malunion and Nonunion", fac:"Dr. Arul Kumar"},
+    "Ophthalmology": {topic:"Xerophthalmia, exposure and neuroparalytic keratitis; Dry eye evaluation and management"},
+  },
+  "2026-08-21": {
+    "Surgery": {topic:"Investigations of urinary symptoms"},
+    "Psychiatry": {topic:"Neuromodulation techniques in psychiatric treatment"},
+    "Ophthalmology": {topic:"Keratoconus and other corneal dystrophies and their management; Principles of contact lens wear"},
+    "Obstetrics & Gynaecology": {topic:"Anaemia in pregnancy", fac:"Dr. L. Anusha"},
+  },
+  "2026-08-22": {
+    "Pulmonary Medicine": {topic:"ILD (interstitial lung disease)", fac:"Dr. Indhu S"},
+  },
+  "2026-08-24": {
+    "ENT": {topic:"Disorders of Vestibular System", fac:"Dr Vignesh K"},
+  },
+  "2026-08-27": {
+    "Orthopaedics": {topic:"Peripheral Nerve Injuries", fac:"Dr. Arul Kumar"},
+    "Ophthalmology": {topic:"Keratoplasty – Types, Indications, Technique"},
+  },
+  "2026-08-28": {
+    "Surgery": {topic:"Infections of kidney including genitourinary tuberculosis"},
+    "Psychiatry": {topic:"Psychiatry in the General Hospital – Child Guidance Clinic"},
+    "Ophthalmology": {topic:"Anatomy of anterior chamber angle and aqueous humor dynamics"},
+    "Obstetrics & Gynaecology": {topic:"Abnormal labour", fac:"Dr. L. Anusha"},
+  },
+  "2026-08-29": {
+    "Pulmonary Medicine": {topic:"Lung abscess and empyema", fac:"Dr. Indhu"},
+  },
+  "2026-08-31": {
+    "ENT": {topic:"Tinnitus", fac:"Dr Karthikeyan R"},
+  },
+  "2026-09-02": {
+    "Obstetrics & Gynaecology": {topic:"Obstructed labour", fac:"Dr. L. Anusha"},
+    "Dermatology": {topic:"Vaginal discharge", fac:"Dr Geethanjali S"},
+  },
+  "2026-09-03": {
+    "Orthopaedics": {topic:"Assessment", fac:"Dr. Arul Kumar"},
+    "Ophthalmology": {topic:"Evaluation — optic disc examination, tonometry, gonioscopy"},
+  },
+  "2026-09-04": {
+    "Surgery": {topic:"Urolithiasis including bladder stone"},
+    "Psychiatry": {topic:"Basics of Learning, Memory and Intelligence Testing"},
+    "Ophthalmology": {topic:"Perimetry — automated and other types; Field changes in glaucoma"},
+    "Obstetrics & Gynaecology": {topic:"Rupture uterus", fac:"Dr. L. Anusha"},
+  },
+  "2026-09-05": {
+    "Pulmonary Medicine": {topic:"Lung cancer", fac:"Dr. Indhu"},
+  },
+  "2026-09-07": {
+    "ENT": {topic:"Acoustic Neuroma", fac:"Dr Vignesh K"},
+  },
+  "2026-09-09": {
+    "Obstetrics & Gynaecology": {topic:"Antepartum fetal surveillance", fac:"Dr. L. Anusha"},
+    "Dermatology": {topic:"Vitiligo and ichthyosis", fac:"Dr Geethanjali S"},
+  },
+  "2026-09-10": {
+    "Orthopaedics": {topic:"Revision", fac:"Dr. Arul Kumar"},
+    "Ophthalmology": {topic:"Glaucoma – POAG, OHTN, NTG"},
+  },
+  "2026-09-11": {
+    "Surgery": {topic:"Benign and malignant renal tumours"},
+    "Psychiatry": {topic:"Theories of Personality and assessment of personality"},
+    "Ophthalmology": {topic:"Principles of glaucoma management – target pressure; Pharmacological treatment; Surgical treatment (trabeculectomy)"},
+    "Obstetrics & Gynaecology": {topic:"Antepartum fetal surveillance", fac:"Dr. L. Anusha"},
+  },
+  "2026-09-12": {
+    "Pulmonary Medicine": {topic:"Obstructive sleep apnea", fac:"Dr. Indhu"},
+  },
+};
+function topicFor(iso,sub){return (TOPICS[iso]&&TOPICS[iso][sub])||null;}
 
 /* ────────────────────────────────────────
    WEEK GRID  (hourly cells) — drives the Week tab + attendance
@@ -333,16 +450,16 @@ const WEEK = {
     {s:16,e:17, sub:"Modular teaching", vt:"modular", nmc:"theory"},
   ],
   2:[ // Tuesday
-    {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
-    {s:12,e:13, sub:"PSM",              vt:"theory",  nmc:"theory"},
-    {s:13,e:14, sub:"Free",             vt:"free",    nmc:"none"},
-    {s:14,e:15, sub:"FHAP",             vt:"theory",  nmc:"theory"},
-    {s:15,e:16, sub:"FHAP",             vt:"theory",  nmc:"theory"},
-    {s:16,e:17, sub:"FHAP",             vt:"theory",  nmc:"theory"},
+    {s:9, e:12, sub:"Clinics",                           vt:"clinic",  nmc:"practical"},
+    {s:12,e:13, sub:"Community Medicine",                vt:"theory",  nmc:"theory"},
+    {s:13,e:14, sub:"Free",                              vt:"free",    nmc:"none"},
+    {s:14,e:15, sub:"Community Med. Practical/Field work",vt:"theory", nmc:"theory"},
+    {s:15,e:16, sub:"Community Med. Practical/Field work",vt:"theory", nmc:"theory"},
+    {s:16,e:17, sub:"Community Med. Practical/Field work",vt:"theory", nmc:"theory"},
   ],
   3:[ // Wednesday
-    {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
-    {s:12,e:13, sub:"OBG",              vt:"theory",  nmc:"theory"},
+    {s:9, e:12, sub:"Clinics",                    vt:"clinic",  nmc:"practical"},
+    {s:12,e:13, sub:"Obstetrics & Gynaecology",   vt:"theory",  nmc:"theory"},
     {s:13,e:14, sub:"Free",             vt:"free",    nmc:"none"},
     {s:14,e:15, sub:"Dermatology",      vt:"theory",  nmc:"theory"},
     {s:15,e:16, sub:"Modular teaching", vt:"modular", nmc:"theory"},
@@ -361,8 +478,8 @@ const WEEK = {
     {s:12,e:13, sub:"Surgery",          vt:"theory",  nmc:"theory"},
     {s:13,e:14, sub:"Free",             vt:"free",    nmc:"none"},
     {s:14,e:15, sub:"Psychiatry",       vt:"theory",  nmc:"theory"},
-    {s:15,e:16, sub:"Ophthalmology",    vt:"theory",  nmc:"theory"},
-    {s:16,e:17, sub:"OBG",              vt:"theory",  nmc:"theory"},
+    {s:15,e:16, sub:"Ophthalmology",              vt:"theory",  nmc:"theory"},
+    {s:16,e:17, sub:"Obstetrics & Gynaecology",   vt:"theory",  nmc:"theory"},
   ],
   6:[ // Saturday
     {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
@@ -578,11 +695,13 @@ function rNow(n){
   const next=slots.find(s=>s.s>cur);
   const ap=getActive(n),np=getNext(n);
   const iso=isoDate(tod(n));
-  let html=subPostBanner(n);
+  let html=isHoliday(iso)?"":subPostBanner(n);
 
   let ci="";
   if(dow===0){
     ci=`<div class="muted-txt">Sunday — no classes today 🎉</div>`;
+  } else if(isHoliday(iso)){
+    ci=`<div class="muted-txt">🎉 ${HOLIDAYS[iso]} — no classes today</div>`;
   } else if(active){
     const c=C[active.type];
     const p=Math.round((cur-active.s)/(active.e-active.s)*100);
@@ -594,10 +713,12 @@ function rNow(n){
     const isClin=active.sub==="Clinics";
     const dept=isClin?clinicDeptFor(iso):null;
     const noDept=dept==="Unassigned";
+    const tp=isClin?null:topicFor(iso,active.sub);
     ci=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <div style="width:11px;height:11px;border-radius:50%;background:${c.dot};box-shadow:0 0 8px ${c.dot};flex-shrink:0"></div>
           <span class="big" style="margin:0">${active.sub}</span>
         </div>
+        ${tp?`<div class="sm" style="margin:-4px 0 8px">${tp.topic}${tp.fac?` · ${tp.fac}`:""}</div>`:""}
         ${isClin?`<div class="slot-dept">${noDept?"Posting not set — tap ⋯ Posting":dept+" posting"}</div>`:""}
         <div class="sm">${fh(active.s)} → ${fh(active.e)}</div>
         <div class="track"><div class="fill" style="width:${p}%;background:linear-gradient(90deg,${c.dot},${c.tx})"></div></div>
@@ -619,17 +740,18 @@ function rNow(n){
   }
   html+=card("NOW IN CLASS",ci);
 
-  if(next&&dow!==0){
+  if(next&&dow!==0&&!isHoliday(iso)){
     const c=C[next.type];
     const nxtWSlots=weekSlotsForTH(dow,next);
     const nxtMkable=nxtWSlots.length>0;
     const nxtSt=nxtMkable?markStateForTH(iso,dow,next):"none";
     const nxtLbl=nxtSt==="present"?"✓ Present":nxtSt==="absent"?"✗ Absent":nxtSt==="cancelled"?"— Cancelled":"";
     const nxtCol=nxtSt==="present"?"var(--green-tx)":nxtSt==="absent"?"var(--red-tx)":nxtSt==="cancelled"?"var(--amber-tx)":"var(--muted)";
+    const nxtTp=next.sub==="Clinics"?null:topicFor(iso,next.sub);
     html+=card("UP NEXT",`<div class="row">
       <div>
         <div class="med">${next.sub}</div>
-        <div class="sm">Starts at ${fh(next.s)}</div>
+        <div class="sm">Starts at ${fh(next.s)}${nxtTp?` · ${nxtTp.topic}`:""}</div>
       </div>${pill(next.type,c)}</div>
       ${nxtMkable?`<div class="mk-row">
         <span style="font-size:13px;font-weight:700;color:${nxtCol}">${nxtLbl||"Not marked yet"}</span>
@@ -660,11 +782,12 @@ function rNow(n){
 function rToday(n){
   const dow=n.getDay(),h=n.getHours(),m=n.getMinutes(),cur=h+m/60;
   const slots=TH[dow]||[];
-  const subBanner=subPostBanner(n);
+  const iso=isoDate(tod(n));
+  const subBanner=isHoliday(iso)?"":subPostBanner(n);
   if(dow===0) return subBanner+card("SUNDAY",`<div class="muted-txt">No classes. Rest up! 🌴</div>`);
+  if(isHoliday(iso)) return subBanner+card("HOLIDAY",`<div class="muted-txt">🎉 ${HOLIDAYS[iso]} — no classes today</div>`);
   if(!slots.length) return subBanner+card("TODAY",`<div class="muted-txt">No schedule</div>`);
 
-  const iso=isoDate(tod(n));
   const z=loadZoneB();
   const allWSlots=(WEEK[dow]||[]).filter(p=>p.nmc!=="none");
   const markedCount=allWSlots.filter(p=>z.marks[iso+"__"+p.s]).length;
@@ -693,6 +816,7 @@ function rToday(n){
     const dept=isClin?clinicDeptFor(iso):null;
     const rowLbl=mkLbl||(isClin?"Tap to mark today's clinic":"");
     const showRow=mkable&&(mkLbl||isClin);
+    const tp=isClin?null:topicFor(iso,sl.sub);
     html+=`<div class="slot ${isNow?"now":""} ${isPast?"past":""}${mkCls}${mkable?" tappable":""}" ${isNow?`style="border-color:${c.bd};background:${c.bg}"`:""}${mkable?` onclick="cycleMarkTH('${iso}',${dow},${sl.s},${sl.e})"`:""}>
       ${mkDot}
       <div class="slot-accent" style="background:${c.dot};box-shadow:0 0 8px ${c.dot}"></div>
@@ -700,6 +824,7 @@ function rToday(n){
         <div>
           <div class="slot-name">${sl.sub}</div>
           <div class="slot-time">${fh(sl.s)} – ${fh(sl.e)}</div>
+          ${tp?`<div class="slot-dept">${tp.topic}${tp.fac?` · ${tp.fac}`:""}</div>`:""}
           ${isClin?`<div class="slot-dept">${dept==="Unassigned"?"Posting not set":dept+" posting"}</div>`:""}
         </div>
         ${pill(isNow?"● NOW":isPast?"done":sl.type,c)}
