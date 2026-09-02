@@ -567,6 +567,57 @@ function subPostBanner(n){
   return`<div class="subpost-none">🔪 Surgery posting · No sub-posting scheduled today.</div>`;
 }
 
+/* ────────────────────────────────────────
+   GROUP 3 ROOM ROTATION — OPD/OT/Ward/Room4/Room5
+   Source: official Clinical Rotation Schedule PDF,
+   02 Sep 2026 – 10 Oct 2026 (Sundays + 14 Sep + 02 Oct excluded).
+   Independent of the CP posting name — this rotation runs
+   regardless of which subject is officially active that week.
+───────────────────────────────────────── */
+const groupRotationG3 = [
+  { date: "2026-09-02", station: "Ward" },
+  { date: "2026-09-03", station: "Room 4" },
+  { date: "2026-09-04", station: "Room 5" },
+  { date: "2026-09-05", station: "OPD" },
+  { date: "2026-09-07", station: "OT" },
+  { date: "2026-09-08", station: "Ward" },
+  { date: "2026-09-09", station: "Room 4" },
+  { date: "2026-09-10", station: "Room 5" },
+  { date: "2026-09-11", station: "OPD" },
+  { date: "2026-09-12", station: "OT" },
+  { date: "2026-09-15", station: "Ward" },
+  { date: "2026-09-16", station: "Room 4" },
+  { date: "2026-09-17", station: "Room 5" },
+  { date: "2026-09-18", station: "OPD" },
+  { date: "2026-09-19", station: "OT" },
+  { date: "2026-09-21", station: "Ward" },
+  { date: "2026-09-22", station: "Room 4" },
+  { date: "2026-09-23", station: "Room 5" },
+  { date: "2026-09-24", station: "OPD" },
+  { date: "2026-09-25", station: "OT" },
+  { date: "2026-09-26", station: "Ward" },
+  { date: "2026-09-28", station: "Room 4" },
+  { date: "2026-09-29", station: "Room 5" },
+  { date: "2026-09-30", station: "OPD" },
+  { date: "2026-10-01", station: "OT" },
+  { date: "2026-10-03", station: "Ward" },
+  { date: "2026-10-05", station: "Room 4" },
+  { date: "2026-10-06", station: "Room 5" },
+  { date: "2026-10-07", station: "OPD" },
+  { date: "2026-10-08", station: "OT" },
+  { date: "2026-10-09", station: "Ward" },
+  { date: "2026-10-10", station: "Room 4" },
+];
+function groupStationFor(iso){const e=groupRotationG3.find(x=>x.date===iso);return e?e.station:null;}
+function groupRotBanner(n){
+  const st=groupStationFor(isoDate(tod(n)));
+  if(!st)return"";
+  return`<div class="subpost-banner">
+    <div class="subpost-ico">🔁</div>
+    <div><div class="subpost-lbl">Today's Group 3 Station</div><div class="subpost-dept">${st}</div></div>
+  </div>`;
+}
+
 /* ── Zone A default baseline (empty — fill in from your own portal on-device) ── */
 function defaultZoneA(){return[
   {name:"Ophthalmology",                tP:null, tT:null, pP:null, pT:null},
@@ -695,7 +746,7 @@ function rNow(n){
   const next=slots.find(s=>s.s>cur);
   const ap=getActive(n),np=getNext(n);
   const iso=isoDate(tod(n));
-  let html=isHoliday(iso)?"":subPostBanner(n);
+  let html=isHoliday(iso)?"":(subPostBanner(n)+groupRotBanner(n));
 
   let ci="";
   if(dow===0){
@@ -783,7 +834,7 @@ function rToday(n){
   const dow=n.getDay(),h=n.getHours(),m=n.getMinutes(),cur=h+m/60;
   const slots=TH[dow]||[];
   const iso=isoDate(tod(n));
-  const subBanner=isHoliday(iso)?"":subPostBanner(n);
+  const subBanner=isHoliday(iso)?"":(subPostBanner(n)+groupRotBanner(n));
   if(dow===0) return subBanner+card("SUNDAY",`<div class="muted-txt">No classes. Rest up! 🌴</div>`);
   if(isHoliday(iso)) return subBanner+card("HOLIDAY",`<div class="muted-txt">🎉 ${HOLIDAYS[iso]} — no classes today</div>`);
   if(!slots.length) return subBanner+card("TODAY",`<div class="muted-txt">No schedule</div>`);
@@ -1291,7 +1342,27 @@ function rPostings(n){
       </table>
     </div>
   </details>`;
-  return subRot+CP.map(p=>{
+  const groupRotRows=groupRotationG3.map(e=>{
+    const d=pd(e.date);
+    const isToday=e.date===tISO;
+    const isPast=d<t;
+    return`<tr class="${isToday?"today":isPast?"past":""}">
+      <td>${d.getDate()} ${MONTHS[d.getMonth()]}</td>
+      <td>${DSHORT[d.getDay()]}</td>
+      <td><span class="subrot-tag">${e.station}</span></td>
+    </tr>`;
+  }).join("");
+  const inGroupRot=t>=pd("2026-09-02")&&t<=pd("2026-10-10");
+  const groupRot=`<details class="howto" ${inGroupRot?"open":""}>
+    <summary>🔁 Group 3 Room Rotation (02 Sep – 10 Oct)</summary>
+    <div class="howbody">
+      <table class="subrot-table">
+        <thead><tr><th>Date</th><th>Day</th><th>Station</th></tr></thead>
+        <tbody>${groupRotRows}</tbody>
+      </table>
+    </div>
+  </details>`;
+  return subRot+groupRot+CP.map(p=>{
     const isActive=ap&&ap.s===p.s;
     const isPast=pd(p.e)<t;
     const isExam=p.type==="exam",isVac=p.type==="vacation";
