@@ -248,11 +248,11 @@ button.cell:active{transform:scale(.95)}
   <div class="header">
     <div class="badge-row">
       <div class="live-dot"></div>
-      <span class="badge-text">Clinical Timetable · VI Semester</span>
+      <span class="badge-text">Clinical Timetable · VII Semester</span>
     </div>
     <div class="clock" id="clk">--:--:--</div>
     <div class="date-lbl" id="dlbl">Loading…</div>
-    <div class="venue-lbl">Theory · Fourth Floor LH-5</div>
+    <div class="venue-lbl">Theory · First Floor LH-4</div>
   </div>
   <div class="tabs">
     <button class="tab on" data-tab="now"      onclick="go('now')">Now</button>
@@ -275,7 +275,8 @@ button.cell:active{transform:scale(.95)}
 <script>
 /* ────────────────────────────────────────
    THEORY SCHEDULE  (times in decimal hours) — used by Now/Today
-   Effective 01.06.2026 – 12.09.2026 · Venue: Fourth Floor LH-5
+   Effective 14.09.2026 · Venue: First Floor LH-4
+   Source: Circular No. JIP-KKL/Acad/2023 Batch/7th Sem/Schedule, dated 09.09.2026
    • Clinics 09:00–12:00
    • 12:00–13:00 class slot (subject varies by day)
    • 13:00–14:00 free period (no scheduled class)
@@ -295,26 +296,26 @@ const TH = {
   ],
   3:[ // Wednesday
     {s:9,  e:12, sub:"Clinics",                    type:"clinic"},
-    {s:12, e:13, sub:"Obstetrics & Gynaecology",    type:"theory"},
+    {s:12, e:13, sub:"ENT",                         type:"theory"},
     {s:14, e:15, sub:"Dermatology",                 type:"theory"},
     {s:15, e:17, sub:"Modular Teaching",            type:"modular"},
   ],
   4:[ // Thursday
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
-    {s:12, e:13, sub:"Orthopaedics",      type:"theory"},
+    {s:12, e:13, sub:"Surgery",           type:"theory"},
     {s:14, e:16, sub:"Modular Teaching",  type:"modular"},
     {s:16, e:17, sub:"Ophthalmology",     type:"theory"},
   ],
   5:[ // Friday
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
-    {s:12, e:13, sub:"Surgery",           type:"theory"},
-    {s:14, e:15, sub:"Psychiatry",        type:"theory"},
-    {s:15, e:16, sub:"Ophthalmology",              type:"theory"},
-    {s:16, e:17, sub:"Obstetrics & Gynaecology",   type:"theory"},
+    {s:12, e:13, sub:"ENT",               type:"theory"},
+    {s:14, e:15, sub:"Surgery",           type:"theory"},
+    {s:15, e:16, sub:"Obstetrics & Gynaecology",   type:"theory"},
+    {s:16, e:17, sub:"Ophthalmology",              type:"theory"},
   ],
   6:[ // Saturday
-    {s:9,  e:12, sub:"Clinics",           type:"clinic"},
-    {s:12, e:13, sub:"Pulmonary Medicine",type:"theory"},
+    {s:9,  e:12, sub:"Clinics",                    type:"clinic"},
+    {s:12, e:13, sub:"Obstetrics & Gynaecology",    type:"theory"},
   ],
 };
 
@@ -459,7 +460,7 @@ const WEEK = {
   ],
   3:[ // Wednesday
     {s:9, e:12, sub:"Clinics",                    vt:"clinic",  nmc:"practical"},
-    {s:12,e:13, sub:"Obstetrics & Gynaecology",   vt:"theory",  nmc:"theory"},
+    {s:12,e:13, sub:"ENT",                        vt:"theory",  nmc:"theory"},
     {s:13,e:14, sub:"Free",             vt:"free",    nmc:"none"},
     {s:14,e:15, sub:"Dermatology",      vt:"theory",  nmc:"theory"},
     {s:15,e:16, sub:"Modular teaching", vt:"modular", nmc:"theory"},
@@ -467,7 +468,7 @@ const WEEK = {
   ],
   4:[ // Thursday
     {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
-    {s:12,e:13, sub:"Orthopaedics",     vt:"theory",  nmc:"theory"},
+    {s:12,e:13, sub:"Surgery",          vt:"theory",  nmc:"theory"},
     {s:13,e:14, sub:"Free",             vt:"free",    nmc:"none"},
     {s:14,e:15, sub:"Modular teaching", vt:"modular", nmc:"theory"},
     {s:15,e:16, sub:"Modular teaching", vt:"modular", nmc:"theory"},
@@ -475,15 +476,15 @@ const WEEK = {
   ],
   5:[ // Friday
     {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
-    {s:12,e:13, sub:"Surgery",          vt:"theory",  nmc:"theory"},
+    {s:12,e:13, sub:"ENT",              vt:"theory",  nmc:"theory"},
     {s:13,e:14, sub:"Free",             vt:"free",    nmc:"none"},
-    {s:14,e:15, sub:"Psychiatry",       vt:"theory",  nmc:"theory"},
-    {s:15,e:16, sub:"Ophthalmology",              vt:"theory",  nmc:"theory"},
-    {s:16,e:17, sub:"Obstetrics & Gynaecology",   vt:"theory",  nmc:"theory"},
+    {s:14,e:15, sub:"Surgery",          vt:"theory",  nmc:"theory"},
+    {s:15,e:16, sub:"Obstetrics & Gynaecology",   vt:"theory",  nmc:"theory"},
+    {s:16,e:17, sub:"Ophthalmology",              vt:"theory",  nmc:"theory"},
   ],
   6:[ // Saturday
     {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
-    {s:12,e:13, sub:"Pulmonary Medicine",vt:"theory", nmc:"theory"},
+    {s:12,e:13, sub:"Obstetrics & Gynaecology",vt:"theory", nmc:"theory"},
   ],
 };
 
