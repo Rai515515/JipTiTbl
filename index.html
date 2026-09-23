@@ -252,7 +252,7 @@ button.cell:active{transform:scale(.95)}
     </div>
     <div class="clock" id="clk">--:--:--</div>
     <div class="date-lbl" id="dlbl">Loading…</div>
-    <div class="venue-lbl">Theory · First Floor LH-4</div>
+    <div class="venue-lbl" id="venueLbl">Theory · Loading…</div>
   </div>
   <div class="tabs">
     <button class="tab on" data-tab="now"      onclick="go('now')">Now</button>
@@ -275,14 +275,16 @@ button.cell:active{transform:scale(.95)}
 <script>
 /* ────────────────────────────────────────
    THEORY SCHEDULE  (times in decimal hours) — used by Now/Today
-   Effective 14.09.2026 · Venue: First Floor LH-4
+   Effective 14.09.2026 → 20.09.2026 · Venue: First Floor LH-4
    Source: Circular No. JIP-KKL/Acad/2023 Batch/7th Sem/Schedule, dated 09.09.2026
+   Superseded 21.09.2026 by the schedule below — kept for historical accuracy,
+   never shown for a date outside its own window (see THEORY_PERIODS).
    • Clinics 09:00–12:00
    • 12:00–13:00 class slot (subject varies by day)
    • 13:00–14:00 free period (no scheduled class)
    • Afternoon slots 14:00 onwards
 ───────────────────────────────────────── */
-const TH = {
+const TH_SEP14 = {
   1:[ // Monday
     {s:9,  e:12, sub:"Clinics",           type:"clinic"},
     {s:12, e:13, sub:"ENT",               type:"theory"},
@@ -316,6 +318,61 @@ const TH = {
   6:[ // Saturday
     {s:9,  e:12, sub:"Clinics",                    type:"clinic"},
     {s:12, e:13, sub:"Obstetrics & Gynaecology",    type:"theory"},
+  ],
+};
+
+/* ────────────────────────────────────────
+   THEORY SCHEDULE — effective 21.09.2026 → 17.10.2026
+   Venue: Third Floor LH-4
+   Source: "2023 Batch - III MBBS - VII Semester - Theory Schedule
+   from 21.09.2026 to 17.10.2026", dated 18.09.2026.
+   Wed 16:15-17:15 and Sat 13:00-onward are blank IN THE CIRCULAR —
+   left blank here too, not invented.
+   NOTE: this circular's own grid puts Modular Teaching at 14:15-16:15;
+   the separate Modular Teaching circular (also dated 18.09.2026) states
+   Mon/Tue/Fri sessions run 2:00 PM-4:15 PM (14:00-16:15) instead. The
+   two documents disagree by 15 minutes and neither supersedes the
+   other. This grid's own slot (14:15-16:15) is what drives the app's
+   "now in class" / marking mechanics; the modular document's own stated
+   time is shown as a separate line wherever modular detail appears
+   (see MODULAR_DOC_TIME) — not reconciled, both shown.
+───────────────────────────────────────── */
+const TH_SEP21 = {
+  1:[ // Monday
+    {s:9,    e:12,    sub:"Clinics",          type:"clinic"},
+    {s:12,   e:13,    sub:"ENT",              type:"theory"},
+    {s:14.25,e:16.25, sub:"Modular Teaching", type:"modular"},
+    {s:16.25,e:17.25, sub:"Medicine",         type:"theory"},
+  ],
+  2:[ // Tuesday
+    {s:9,    e:12,    sub:"Clinics",          type:"clinic"},
+    {s:12,   e:13,    sub:"PSM",              type:"theory"},
+    {s:14.25,e:16.25, sub:"Modular Teaching", type:"modular"},
+    {s:16.25,e:17.25, sub:"Dermatology",      type:"theory"},
+  ],
+  3:[ // Wednesday
+    {s:9,    e:12,    sub:"Clinics", type:"clinic"},
+    {s:12,   e:13,    sub:"ENT",     type:"theory"},
+    {s:14.25,e:16.25, sub:"FHAP",    type:"theory"},
+    /* 16:15-17:15 blank in the circular — intentionally no entry */
+  ],
+  4:[ // Thursday
+    {s:9,    e:12,    sub:"Clinics",                  type:"clinic"},
+    {s:12,   e:13,    sub:"Surgery",                  type:"theory"},
+    {s:14.25,e:15.25, sub:"Surgery",                  type:"theory"},
+    {s:15.25,e:16.25, sub:"Obstetrics & Gynaecology", type:"theory"},
+    {s:16.25,e:17.25, sub:"Ophthalmology",            type:"theory"},
+  ],
+  5:[ // Friday
+    {s:9,    e:12,    sub:"Clinics",          type:"clinic"},
+    {s:12,   e:13,    sub:"ENT",              type:"theory"},
+    {s:14.25,e:16.25, sub:"Modular Teaching", type:"modular"},
+    {s:16.25,e:17.25, sub:"Ophthalmology",    type:"theory"},
+  ],
+  6:[ // Saturday
+    {s:9,  e:12, sub:"Clinics",                    type:"clinic"},
+    {s:12, e:13, sub:"Obstetrics & Gynaecology",    type:"theory"},
+    /* 13:00 onward blank in the circular — intentionally no entry */
   ],
 };
 
@@ -440,8 +497,9 @@ function topicFor(iso,sub){return (TOPICS[iso]&&TOPICS[iso][sub])||null;}
    WEEK GRID  (hourly cells) — drives the Week tab + attendance
    vt  = visual type (color): clinic | theory | modular | free
    nmc = NMC classification: practical | theory | none
+   Effective 14.09.2026 → 20.09.2026 — superseded 21.09.2026, see below.
 ───────────────────────────────────────── */
-const WEEK = {
+const WEEK_SEP14 = {
   1:[ // Monday
     {s:9, e:12, sub:"Clinics",          vt:"clinic",  nmc:"practical"},
     {s:12,e:13, sub:"ENT",              vt:"theory",  nmc:"theory"},
@@ -487,6 +545,108 @@ const WEEK = {
     {s:12,e:13, sub:"Obstetrics & Gynaecology",vt:"theory", nmc:"theory"},
   ],
 };
+
+/* ────────────────────────────────────────
+   WEEK GRID — effective 21.09.2026 → 17.10.2026 (see TH_SEP21 for source
+   and the modular-timing conflict note). One row per source-listed block
+   (no artificial hourly splitting of Modular Teaching/CM-practical style
+   blocks — the source gives it as a single span).
+───────────────────────────────────────── */
+const WEEK_SEP21 = {
+  1:[ // Monday
+    {s:9,    e:12,    sub:"Clinics",          vt:"clinic",  nmc:"practical"},
+    {s:12,   e:13,    sub:"ENT",              vt:"theory",  nmc:"theory"},
+    {s:13,   e:14.25, sub:"Free",             vt:"free",    nmc:"none"},
+    {s:14.25,e:16.25, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:16.25,e:17.25, sub:"Medicine",         vt:"theory",  nmc:"theory"},
+  ],
+  2:[ // Tuesday
+    {s:9,    e:12,    sub:"Clinics",          vt:"clinic",  nmc:"practical"},
+    {s:12,   e:13,    sub:"PSM",              vt:"theory",  nmc:"theory"},
+    {s:13,   e:14.25, sub:"Free",             vt:"free",    nmc:"none"},
+    {s:14.25,e:16.25, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:16.25,e:17.25, sub:"Dermatology",      vt:"theory",  nmc:"theory"},
+  ],
+  3:[ // Wednesday
+    {s:9,    e:12,    sub:"Clinics", vt:"clinic",  nmc:"practical"},
+    {s:12,   e:13,    sub:"ENT",     vt:"theory",  nmc:"theory"},
+    {s:13,   e:14.25, sub:"Free",    vt:"free",    nmc:"none"},
+    {s:14.25,e:16.25, sub:"FHAP",    vt:"theory",  nmc:"theory"},
+    /* 16:15-17:15 blank in the circular — intentionally no entry */
+  ],
+  4:[ // Thursday
+    {s:9,    e:12,    sub:"Clinics",                  vt:"clinic",  nmc:"practical"},
+    {s:12,   e:13,    sub:"Surgery",                  vt:"theory",  nmc:"theory"},
+    {s:13,   e:14.25, sub:"Free",                     vt:"free",    nmc:"none"},
+    {s:14.25,e:15.25, sub:"Surgery",                  vt:"theory",  nmc:"theory"},
+    {s:15.25,e:16.25, sub:"Obstetrics & Gynaecology", vt:"theory",  nmc:"theory"},
+    {s:16.25,e:17.25, sub:"Ophthalmology",            vt:"theory",  nmc:"theory"},
+  ],
+  5:[ // Friday
+    {s:9,    e:12,    sub:"Clinics",          vt:"clinic",  nmc:"practical"},
+    {s:12,   e:13,    sub:"ENT",              vt:"theory",  nmc:"theory"},
+    {s:13,   e:14.25, sub:"Free",             vt:"free",    nmc:"none"},
+    {s:14.25,e:16.25, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:16.25,e:17.25, sub:"Ophthalmology",    vt:"theory",  nmc:"theory"},
+  ],
+  6:[ // Saturday
+    {s:9, e:12, sub:"Clinics",                     vt:"clinic", nmc:"practical"},
+    {s:12,e:13, sub:"Obstetrics & Gynaecology",    vt:"theory", nmc:"theory"},
+    /* 13:00 onward blank in the circular — intentionally no entry */
+  ],
+};
+
+/* ────────────────────────────────────────
+   THEORY SCHEDULE PERIODS — dated ranges, newest circular wins.
+   A date outside every period below has NO confirmed schedule; the app
+   must say so rather than silently reusing an old or upcoming table.
+───────────────────────────────────────── */
+const THEORY_PERIODS = [
+  { from:"2026-09-14", to:"2026-09-20", venue:"First Floor LH-4",
+    source:"Circular JIP-KKL/Acad/2023 Batch/7th Sem/Schedule, dated 09.09.2026",
+    TH:TH_SEP14, WEEK:WEEK_SEP14 },
+  { from:"2026-09-21", to:"2026-10-17", venue:"Third Floor LH-4",
+    source:"2023 Batch - III MBBS - VII Semester - Theory Schedule from 21.09.2026 to 17.10.2026, dated 18.09.2026",
+    TH:TH_SEP21, WEEK:WEEK_SEP21 },
+];
+function periodFor(iso){const d=pd(iso);return THEORY_PERIODS.find(p=>d>=pd(p.from)&&d<=pd(p.to))||null;}
+function thForIso(iso){const p=periodFor(iso);return p?p.TH:null;}
+function weekForIso(iso){const p=periodFor(iso);return p?p.WEEK:null;}
+
+/* ────────────────────────────────────────
+   MODULAR TEACHING — per-date topic/department/venue/streaming.
+   Source: "September and October - 2026 - Modular Teaching - 2023
+   Batch - III MBBS", dated 18.09.2026. Only covers the Mon/Tue/Fri
+   dates it explicitly lists; 02.10.2026 (a Friday in this window) has
+   no block in the source and gets none here either — see audit for
+   why that date has no modular content (unconfirmed non-teaching day).
+   MODULAR_DOC_TIME is this document's own stated timing, shown
+   alongside the grid's 14:15-16:15 slot — see TH_SEP21 note on the
+   15-minute conflict between the two circulars.
+───────────────────────────────────────── */
+const MODULAR_DOC_TIME = "2:00 PM – 4:15 PM";
+const MODULAR_TOPICS = {
+  "2026-09-21": {topic:"Pelvic Radiation Oncology",      dept:"Radiation Oncology", venue:"LH-4, Third Floor",  streaming:true},
+  "2026-09-22": {topic:"Pelvic Radiation Oncology",      dept:"Radiation Oncology", venue:"LH-4, Third Floor",  streaming:true},
+  "2026-09-25": {topic:"Pelvic Radiation Oncology",      dept:"Radiation Oncology", venue:"LH-4, Third Floor",  streaming:true},
+  "2026-09-28": {topic:"Transfusion Medicine",           dept:"Pathology",          venue:"LH-5, Fourth Floor", streaming:false},
+  "2026-09-29": {topic:"Transfusion Medicine",           dept:"Pathology",          venue:"LH-5, Fourth Floor", streaming:false},
+  "2026-10-05": {topic:"Basics of Oncology",             dept:"Medical Oncology",   venue:"LH-4, Third Floor",  streaming:true},
+  "2026-10-06": {topic:"Basics of Oncology",             dept:"Medical Oncology",   venue:"LH-4, Third Floor",  streaming:true},
+  "2026-10-09": {topic:"Basics of Oncology",             dept:"Medical Oncology",   venue:"LH-4, Third Floor",  streaming:true},
+  "2026-10-12": {topic:"Falls in Geriatric Population",  dept:"Geriatric Medicine", venue:"LH-4, Third Floor",  streaming:true},
+  "2026-10-13": {topic:"Falls in Geriatric Population",  dept:"Geriatric Medicine", venue:"LH-4, Third Floor",  streaming:true},
+  "2026-10-16": {topic:"Falls in Geriatric Population",  dept:"Geriatric Medicine", venue:"LH-4, Third Floor",  streaming:true},
+};
+function modularFor(iso){return MODULAR_TOPICS[iso]||null;}
+function isModularSub(sub){return sub==="Modular Teaching"||sub==="Modular teaching";}
+function modularDetailHtml(iso,slotS,slotE){
+  const md=modularFor(iso);
+  if(!md)return"";
+  const stream=md.streaming?" · 📡 Streamed live from JIPMER Puducherry":"";
+  return`<div class="sm" style="margin:-4px 0 2px">${md.topic} · ${md.dept} · ${md.venue}${stream}</div>
+    <div class="note" style="margin:0 0 8px">Modular Teaching circular (18.09.2026) states this session as <b>${MODULAR_DOC_TIME}</b>; the Theory Schedule circular's grid slot here is ${shr(slotS,slotE)}. Both official, shown as given.</div>`;
+}
 
 /* ────────────────────────────────────────
    CLINICAL POSTINGS — ROTATION  (all 45 weeks)
@@ -646,9 +806,11 @@ const C = {
 /* ── helpers ── */
 function pd(str){const[y,m,d]=str.split("-").map(Number);return new Date(y,m-1,d);}
 function tod(n){return new Date(n.getFullYear(),n.getMonth(),n.getDate());}
-function fh(h){return`${h>12?h-12:h===0?12:h}:00 ${h>=12?"PM":"AM"}`;}
-function h12(h){return h>12?h-12:h===0?12:h;}
-function shr(s,e){return`${h12(s)}–${h12(e)}`;}
+/* h12parts: decimal hour (e.g. 14.25) → {h12v:2, mm:15} for AM/PM display */
+function h12parts(h){const hh=Math.floor(h);const mm=Math.round((h-hh)*60);const h12v=hh%12===0?12:hh%12;return{h12v,mm};}
+function fh(h){const{h12v,mm}=h12parts(h);const ampm=h>=12?"PM":"AM";return mm?`${h12v}:${String(mm).padStart(2,"0")} ${ampm}`:`${h12v}:00 ${ampm}`;}
+function h12(h){return h12parts(h).h12v;}
+function shr(s,e){const a=h12parts(s),b=h12parts(e);const f=p=>p.mm?`${p.h12v}:${String(p.mm).padStart(2,"0")}`:`${p.h12v}`;return`${f(a)}–${f(b)}`;}
 function daysUntil(s,n){return Math.round((pd(s)-tod(n))/86400000);}
 function isoDate(d){return`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;}
 function esc(s){return String(s).replace(/'/g,"\\'");}
@@ -689,18 +851,19 @@ function loadZoneB(){
 }
 function saveZoneB(z){try{localStorage.setItem(LSB,JSON.stringify(z));}catch(e){}}
 
-function weekSlotsForTH(dow,thSlot){
-  return (WEEK[dow]||[]).filter(p=>p.nmc!=="none"&&p.s>=thSlot.s&&p.s<thSlot.e);
+function weekSlotsForTH(iso,dow,thSlot){
+  const WK=weekForIso(iso);
+  return ((WK&&WK[dow])||[]).filter(p=>p.nmc!=="none"&&p.s>=thSlot.s&&p.s<thSlot.e);
 }
 function markStateForTH(iso,dow,thSlot){
   const z=loadZoneB();
-  const ws=weekSlotsForTH(dow,thSlot);
+  const ws=weekSlotsForTH(iso,dow,thSlot);
   if(!ws.length)return"none";
   return z.marks[iso+"__"+ws[0].s]?.status||"unmarked";
 }
 window.cycleMarkTH=function(iso,dow,thS,thE){
   const z=loadZoneB();
-  const ws=(WEEK[dow]||[]).filter(p=>p.nmc!=="none"&&p.s>=thS&&p.s<thE);
+  const ws=weekSlotsForTH(iso,dow,{s:thS,e:thE});
   if(!ws.length)return;
   const cur=z.marks[iso+"__"+ws[0].s]?.status||"unmarked";
   const order=["unmarked","present","absent","cancelled"];
@@ -742,11 +905,12 @@ function pill(txt,c){return`<span class="pill" style="background:${c.bg};border-
 /* ────────────────────── RIGHT NOW ────────────────────── */
 function rNow(n){
   const dow=n.getDay(),h=n.getHours(),m=n.getMinutes(),cur=h+m/60;
-  const slots=TH[dow]||[];
+  const iso=isoDate(tod(n));
+  const TH=thForIso(iso);
+  const slots=TH?(TH[dow]||[]):[];
   const active=slots.find(s=>cur>=s.s&&cur<s.e);
   const next=slots.find(s=>s.s>cur);
   const ap=getActive(n),np=getNext(n);
-  const iso=isoDate(tod(n));
   let html=isHoliday(iso)?"":(subPostBanner(n)+groupRotBanner(n));
 
   let ci="";
@@ -754,23 +918,27 @@ function rNow(n){
     ci=`<div class="muted-txt">Sunday — no classes today 🎉</div>`;
   } else if(isHoliday(iso)){
     ci=`<div class="muted-txt">🎉 ${HOLIDAYS[iso]} — no classes today</div>`;
+  } else if(!TH){
+    ci=`<div class="muted-txt">No confirmed theory schedule for this date — outside every known circular's effective range. Check for the next one.</div>`;
   } else if(active){
     const c=C[active.type];
     const p=Math.round((cur-active.s)/(active.e-active.s)*100);
-    const wSlots=weekSlotsForTH(dow,active);
+    const wSlots=weekSlotsForTH(iso,dow,active);
     const mkable=wSlots.length>0;
     const mkSt=mkable?markStateForTH(iso,dow,active):"none";
     const mkLbl=mkSt==="present"?"✓ Present":mkSt==="absent"?"✗ Absent":mkSt==="cancelled"?"— Cancelled":"Tap to mark";
     const mkCol=mkSt==="present"?"var(--green-tx)":mkSt==="absent"?"var(--red-tx)":mkSt==="cancelled"?"var(--amber-tx)":"var(--muted)";
     const isClin=active.sub==="Clinics";
+    const isMod=isModularSub(active.sub);
     const dept=isClin?clinicDeptFor(iso):null;
     const noDept=dept==="Unassigned";
-    const tp=isClin?null:topicFor(iso,active.sub);
+    const tp=(isClin||isMod)?null:topicFor(iso,active.sub);
     ci=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
           <div style="width:11px;height:11px;border-radius:50%;background:${c.dot};box-shadow:0 0 8px ${c.dot};flex-shrink:0"></div>
           <span class="big" style="margin:0">${active.sub}</span>
         </div>
         ${tp?`<div class="sm" style="margin:-4px 0 8px">${tp.topic}${tp.fac?` · ${tp.fac}`:""}</div>`:""}
+        ${isMod?modularDetailHtml(iso,active.s,active.e):""}
         ${isClin?`<div class="slot-dept">${noDept?"Posting not set — tap ⋯ Posting":dept+" posting"}</div>`:""}
         <div class="sm">${fh(active.s)} → ${fh(active.e)}</div>
         <div class="track"><div class="fill" style="width:${p}%;background:linear-gradient(90deg,${c.dot},${c.tx})"></div></div>
@@ -794,12 +962,12 @@ function rNow(n){
 
   if(next&&dow!==0&&!isHoliday(iso)){
     const c=C[next.type];
-    const nxtWSlots=weekSlotsForTH(dow,next);
+    const nxtWSlots=weekSlotsForTH(iso,dow,next);
     const nxtMkable=nxtWSlots.length>0;
     const nxtSt=nxtMkable?markStateForTH(iso,dow,next):"none";
     const nxtLbl=nxtSt==="present"?"✓ Present":nxtSt==="absent"?"✗ Absent":nxtSt==="cancelled"?"— Cancelled":"";
     const nxtCol=nxtSt==="present"?"var(--green-tx)":nxtSt==="absent"?"var(--red-tx)":nxtSt==="cancelled"?"var(--amber-tx)":"var(--muted)";
-    const nxtTp=next.sub==="Clinics"?null:topicFor(iso,next.sub);
+    const nxtTp=(next.sub==="Clinics"||isModularSub(next.sub))?null:topicFor(iso,next.sub);
     html+=card("UP NEXT",`<div class="row">
       <div>
         <div class="med">${next.sub}</div>
@@ -833,15 +1001,18 @@ function rNow(n){
 /* ────────────────────── TODAY ────────────────────── */
 function rToday(n){
   const dow=n.getDay(),h=n.getHours(),m=n.getMinutes(),cur=h+m/60;
-  const slots=TH[dow]||[];
   const iso=isoDate(tod(n));
+  const TH=thForIso(iso);
+  const slots=TH?(TH[dow]||[]):[];
   const subBanner=isHoliday(iso)?"":(subPostBanner(n)+groupRotBanner(n));
   if(dow===0) return subBanner+card("SUNDAY",`<div class="muted-txt">No classes. Rest up! 🌴</div>`);
   if(isHoliday(iso)) return subBanner+card("HOLIDAY",`<div class="muted-txt">🎉 ${HOLIDAYS[iso]} — no classes today</div>`);
+  if(!TH) return subBanner+card("TODAY",`<div class="muted-txt">No confirmed theory schedule for this date — outside every known circular's effective range. Check for the next one.</div>`);
   if(!slots.length) return subBanner+card("TODAY",`<div class="muted-txt">No schedule</div>`);
 
   const z=loadZoneB();
-  const allWSlots=(WEEK[dow]||[]).filter(p=>p.nmc!=="none");
+  const WK=weekForIso(iso);
+  const allWSlots=((WK&&WK[dow])||[]).filter(p=>p.nmc!=="none");
   const markedCount=allWSlots.filter(p=>z.marks[iso+"__"+p.s]).length;
 
   let html=subBanner+`<div class="day-hdr">
@@ -857,7 +1028,7 @@ function rToday(n){
     const isPast=cur>=sl.e;
     const c=C[sl.type];
     const p=isNow?Math.round((cur-sl.s)/(sl.e-sl.s)*100):0;
-    const wSlots=weekSlotsForTH(dow,sl);
+    const wSlots=weekSlotsForTH(iso,dow,sl);
     const mkable=wSlots.length>0;
     const mkSt=mkable?markStateForTH(iso,dow,sl):"none";
     const mkCls=mkSt!=="none"&&mkSt!=="unmarked"?` mk-${mkSt}`:"";
@@ -865,10 +1036,11 @@ function rToday(n){
     const mkLbl=mkSt==="present"?"✓ Present":mkSt==="absent"?"✗ Absent":mkSt==="cancelled"?"— Cancelled":"";
     const mkCol=mkSt==="present"?"var(--green-tx)":mkSt==="absent"?"var(--red-tx)":mkSt==="cancelled"?"var(--amber-tx)":"var(--muted)";
     const isClin=sl.sub==="Clinics";
+    const isMod=isModularSub(sl.sub);
     const dept=isClin?clinicDeptFor(iso):null;
     const rowLbl=mkLbl||(isClin?"Tap to mark today's clinic":"");
     const showRow=mkable&&(mkLbl||isClin);
-    const tp=isClin?null:topicFor(iso,sl.sub);
+    const tp=(isClin||isMod)?null:topicFor(iso,sl.sub);
     html+=`<div class="slot ${isNow?"now":""} ${isPast?"past":""}${mkCls}${mkable?" tappable":""}" ${isNow?`style="border-color:${c.bd};background:${c.bg}"`:""}${mkable?` onclick="cycleMarkTH('${iso}',${dow},${sl.s},${sl.e})"`:""}>
       ${mkDot}
       <div class="slot-accent" style="background:${c.dot};box-shadow:0 0 8px ${c.dot}"></div>
@@ -877,6 +1049,7 @@ function rToday(n){
           <div class="slot-name">${sl.sub}</div>
           <div class="slot-time">${fh(sl.s)} – ${fh(sl.e)}</div>
           ${tp?`<div class="slot-dept">${tp.topic}${tp.fac?` · ${tp.fac}`:""}</div>`:""}
+          ${isMod?modularDetailHtml(iso,sl.s,sl.e):""}
           ${isClin?`<div class="slot-dept">${dept==="Unassigned"?"Posting not set":dept+" posting"}</div>`:""}
         </div>
         ${pill(isNow?"● NOW":isPast?"done":sl.type,c)}
@@ -894,16 +1067,28 @@ function rToday(n){
 /* ────────────────────── WEEK ────────────────────── */
 function rWeek(n){
   const todayDow=n.getDay();
-  let html=card("WEEKLY THEORY SCHEDULE",
-    `<div class="sm" style="margin-top:-4px">Venue: Fourth Floor LH-5 · 01.06.2026 – 12.09.2026<br>Slots: 9–12 · 12–1 · 1–2 (free) · 2–3 · 3–4 · 4–5</div>`);
+  const todayIso=isoDate(tod(n));
+  const todayPeriod=periodFor(todayIso);
+  const hdrTxt=todayPeriod
+    ?`Venue: ${todayPeriod.venue} · ${todayPeriod.from.split("-").reverse().join(".")} – ${todayPeriod.to.split("-").reverse().join(".")}`
+    :`No confirmed theory schedule for today's date — outside every known circular's effective range.`;
+  let html=card("WEEKLY THEORY SCHEDULE",`<div class="sm" style="margin-top:-4px">${hdrTxt}</div>`);
   const z=loadZoneB();
   for(let dow=1;dow<=6;dow++){
     const isToday=dow===todayDow;
     const date=recentDateForDow(dow);
     const iso=isoDate(date);
-    const markable=(WEEK[dow]||[]).filter(p=>p.nmc!=="none");
+    const WK=weekForIso(iso);
+    if(!WK){
+      html+=`<div class="daycard ${isToday?"today":""}">
+        <div class="dayhead"><span class="dayname">${DAYS[dow]}</span>${isToday?`<span class="daytag">● Today</span>`:""}</div>
+        <div class="muted-txt" style="font-size:14px">No confirmed schedule for ${fmtIso(iso)}.</div>
+      </div>`;
+      continue;
+    }
+    const markable=(WK[dow]||[]).filter(p=>p.nmc!=="none");
     const marked=markable.filter(p=>z.marks[iso+"__"+p.s]).length;
-    const cells=(WEEK[dow]||[]).map(p=>{
+    const cells=(WK[dow]||[]).map(p=>{
       const c=C[p.vt];
       if(p.vt==="free"){
         return`<div class="cell free" style="border-color:${c.bd};background:${c.bg}">
@@ -1066,7 +1251,8 @@ function rAttend(n){
     const date=recentDateForDow(dow);
     const iso=isoDate(date);
     const isToday=isoDate(tod(n))===iso;
-    const periods=WEEK[dow];
+    const WK=weekForIso(iso);
+    const periods=(WK&&WK[dow])||[];
     const markable=periods.filter(p=>p.nmc!=="none");
     const marked=markable.filter(p=>zb.marks[iso+"__"+p.s]).length;
     const chips=periods.map(p=>{
@@ -1240,7 +1426,8 @@ window.cycleMark=function(iso,start,sub,kind){
 };
 window.quickMark=function(iso,dow,status){
   const z=loadZoneB();
-  (WEEK[dow]||[]).forEach(p=>{
+  const WK=weekForIso(iso);
+  ((WK&&WK[dow])||[]).forEach(p=>{
     if(p.nmc==="none")return;
     z.marks[iso+"__"+p.s]=mkObj(iso,p.s,p.sub,p.nmc,status);
   });
@@ -1399,6 +1586,9 @@ function tick(){
     n.toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit",second:"2-digit"});
   document.getElementById("dlbl").textContent=
     `${DAYS[n.getDay()]}, ${n.getDate()} ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
+  const per=periodFor(isoDate(tod(n)));
+  document.getElementById("venueLbl").textContent=
+    per?`Theory · ${per.venue}`:"Theory · No confirmed venue for today";
   /* only the live tabs re-render on tick; Week/Attend/Postings stay put so taps & inputs aren't disturbed */
   if(tab==="now"||tab==="today") render();
 }
