@@ -548,23 +548,30 @@ const WEEK_SEP14 = {
 
 /* ────────────────────────────────────────
    WEEK GRID — effective 21.09.2026 → 17.10.2026 (see TH_SEP21 for source
-   and the modular-timing conflict note). One row per source-listed block
-   (no artificial hourly splitting of Modular Teaching/CM-practical style
-   blocks — the source gives it as a single span).
+   and the modular-timing conflict note). Multi-hour same-subject blocks
+   (Modular Teaching) are split into 1-hour rows, matching the only
+   precedent this app has ever used (every prior WEEK table — including
+   the 3-hour CM-practical block — splits a contiguous same-subject span
+   into separate hourly, independently-markable rows). TH_SEP21 still
+   shows the combined 2-hour span as one display row, also matching the
+   prior TH convention; cycleMarkTH() marks all underlying WEEK rows
+   inside that span together when tapped from Now/Today.
 ───────────────────────────────────────── */
 const WEEK_SEP21 = {
   1:[ // Monday
     {s:9,    e:12,    sub:"Clinics",          vt:"clinic",  nmc:"practical"},
     {s:12,   e:13,    sub:"ENT",              vt:"theory",  nmc:"theory"},
     {s:13,   e:14.25, sub:"Free",             vt:"free",    nmc:"none"},
-    {s:14.25,e:16.25, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:14.25,e:15.25, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:15.25,e:16.25, sub:"Modular teaching", vt:"modular", nmc:"theory"},
     {s:16.25,e:17.25, sub:"Medicine",         vt:"theory",  nmc:"theory"},
   ],
   2:[ // Tuesday
     {s:9,    e:12,    sub:"Clinics",          vt:"clinic",  nmc:"practical"},
     {s:12,   e:13,    sub:"PSM",              vt:"theory",  nmc:"theory"},
     {s:13,   e:14.25, sub:"Free",             vt:"free",    nmc:"none"},
-    {s:14.25,e:16.25, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:14.25,e:15.25, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:15.25,e:16.25, sub:"Modular teaching", vt:"modular", nmc:"theory"},
     {s:16.25,e:17.25, sub:"Dermatology",      vt:"theory",  nmc:"theory"},
   ],
   3:[ // Wednesday
@@ -586,7 +593,8 @@ const WEEK_SEP21 = {
     {s:9,    e:12,    sub:"Clinics",          vt:"clinic",  nmc:"practical"},
     {s:12,   e:13,    sub:"ENT",              vt:"theory",  nmc:"theory"},
     {s:13,   e:14.25, sub:"Free",             vt:"free",    nmc:"none"},
-    {s:14.25,e:16.25, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:14.25,e:15.25, sub:"Modular teaching", vt:"modular", nmc:"theory"},
+    {s:15.25,e:16.25, sub:"Modular teaching", vt:"modular", nmc:"theory"},
     {s:16.25,e:17.25, sub:"Ophthalmology",    vt:"theory",  nmc:"theory"},
   ],
   6:[ // Saturday
@@ -642,7 +650,14 @@ function modularFor(iso){return MODULAR_TOPICS[iso]||null;}
 function isModularSub(sub){return sub==="Modular Teaching"||sub==="Modular teaching";}
 function modularDetailHtml(iso,slotS,slotE){
   const md=modularFor(iso);
-  if(!md)return"";
+  if(!md){
+    /* The Theory Schedule circular puts Modular Teaching in this slot regardless
+       of date; the separate Modular Teaching circular just doesn't supply a
+       topic/department/venue for this particular date. Say that explicitly —
+       do not render this as an ordinary, fully-detailed module, and do not
+       imply a holiday/cancellation (neither is confirmed by any source). */
+    return`<div class="note" style="margin:-4px 0 8px">No topic/department/venue supplied for this date's Modular Teaching session in the Modular Teaching circular (18.09.2026). The slot itself still runs per the Theory Schedule circular.</div>`;
+  }
   const stream=md.streaming?" · 📡 Streamed live from JIPMER Puducherry":"";
   return`<div class="sm" style="margin:-4px 0 2px">${md.topic} · ${md.dept} · ${md.venue}${stream}</div>
     <div class="note" style="margin:0 0 8px">Modular Teaching circular (18.09.2026) states this session as <b>${MODULAR_DOC_TIME}</b>; the Theory Schedule circular's grid slot here is ${shr(slotS,slotE)}. Both official, shown as given.</div>`;
@@ -919,7 +934,7 @@ function rNow(n){
   } else if(isHoliday(iso)){
     ci=`<div class="muted-txt">🎉 ${HOLIDAYS[iso]} — no classes today</div>`;
   } else if(!TH){
-    ci=`<div class="muted-txt">No confirmed theory schedule for this date — outside every known circular's effective range. Check for the next one.</div>`;
+    ci=`<div class="muted-txt">No confirmed timetable available for this date — no circular on file covers it. This doesn't mean there's no class, only that this app has nothing confirmed to show; check the portal or the next circular.</div>`;
   } else if(active){
     const c=C[active.type];
     const p=Math.round((cur-active.s)/(active.e-active.s)*100);
@@ -1007,7 +1022,7 @@ function rToday(n){
   const subBanner=isHoliday(iso)?"":(subPostBanner(n)+groupRotBanner(n));
   if(dow===0) return subBanner+card("SUNDAY",`<div class="muted-txt">No classes. Rest up! 🌴</div>`);
   if(isHoliday(iso)) return subBanner+card("HOLIDAY",`<div class="muted-txt">🎉 ${HOLIDAYS[iso]} — no classes today</div>`);
-  if(!TH) return subBanner+card("TODAY",`<div class="muted-txt">No confirmed theory schedule for this date — outside every known circular's effective range. Check for the next one.</div>`);
+  if(!TH) return subBanner+card("TODAY",`<div class="muted-txt">No confirmed timetable available for this date — no circular on file covers it. This doesn't mean there's no class, only that this app has nothing confirmed to show; check the portal or the next circular.</div>`);
   if(!slots.length) return subBanner+card("TODAY",`<div class="muted-txt">No schedule</div>`);
 
   const z=loadZoneB();
@@ -1071,7 +1086,7 @@ function rWeek(n){
   const todayPeriod=periodFor(todayIso);
   const hdrTxt=todayPeriod
     ?`Venue: ${todayPeriod.venue} · ${todayPeriod.from.split("-").reverse().join(".")} – ${todayPeriod.to.split("-").reverse().join(".")}`
-    :`No confirmed theory schedule for today's date — outside every known circular's effective range.`;
+    :`No confirmed timetable available for today's date — no circular on file covers it (not evidence there's no class).`;
   let html=card("WEEKLY THEORY SCHEDULE",`<div class="sm" style="margin-top:-4px">${hdrTxt}</div>`);
   const z=loadZoneB();
   for(let dow=1;dow<=6;dow++){
@@ -1082,7 +1097,7 @@ function rWeek(n){
     if(!WK){
       html+=`<div class="daycard ${isToday?"today":""}">
         <div class="dayhead"><span class="dayname">${DAYS[dow]}</span>${isToday?`<span class="daytag">● Today</span>`:""}</div>
-        <div class="muted-txt" style="font-size:14px">No confirmed schedule for ${fmtIso(iso)}.</div>
+        <div class="muted-txt" style="font-size:14px">No confirmed timetable available for ${fmtIso(iso)} (not evidence there's no class).</div>
       </div>`;
       continue;
     }
@@ -1588,7 +1603,7 @@ function tick(){
     `${DAYS[n.getDay()]}, ${n.getDate()} ${MONTHS[n.getMonth()]} ${n.getFullYear()}`;
   const per=periodFor(isoDate(tod(n)));
   document.getElementById("venueLbl").textContent=
-    per?`Theory · ${per.venue}`:"Theory · No confirmed venue for today";
+    per?`Theory · ${per.venue}`:"Theory · No confirmed timetable for today";
   /* only the live tabs re-render on tick; Week/Attend/Postings stay put so taps & inputs aren't disturbed */
   if(tab==="now"||tab==="today") render();
 }
