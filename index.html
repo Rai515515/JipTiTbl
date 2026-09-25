@@ -328,14 +328,14 @@ const TH_SEP14 = {
    from 21.09.2026 to 17.10.2026", dated 18.09.2026.
    Wed 16:15-17:15 and Sat 13:00-onward are blank IN THE CIRCULAR —
    left blank here too, not invented.
-   NOTE: this circular's own grid puts Modular Teaching at 14:15-16:15;
-   the separate Modular Teaching circular (also dated 18.09.2026) states
-   Mon/Tue/Fri sessions run 2:00 PM-4:15 PM (14:00-16:15) instead. The
-   two documents disagree by 15 minutes and neither supersedes the
-   other. This grid's own slot (14:15-16:15) is what drives the app's
-   "now in class" / marking mechanics; the modular document's own stated
-   time is shown as a separate line wherever modular detail appears
-   (see MODULAR_DOC_TIME) — not reconciled, both shown.
+   NOTE: this circular's own grid puts Modular Teaching at 14:15-16:15.
+   The dedicated Modular Teaching circular (also dated 18.09.2026) names
+   11 specific Mon/Tue/Fri dates (see MODULAR_TOPICS) where the actual
+   session instead runs 2:00 PM-4:15 PM. That is a date-specific
+   override of THIS grid's slot for those 11 dates only — applied by
+   thForIso()/weekForIso(), not by editing this table — so every other
+   Modular Teaching date (e.g. an unlisted Friday) keeps the generic
+   14:15-16:15 slot unchanged.
 ───────────────────────────────────────── */
 const TH_SEP21 = {
   1:[ // Monday
@@ -618,8 +618,34 @@ const THEORY_PERIODS = [
     TH:TH_SEP21, WEEK:WEEK_SEP21 },
 ];
 function periodFor(iso){const d=pd(iso);return THEORY_PERIODS.find(p=>d>=pd(p.from)&&d<=pd(p.to))||null;}
-function thForIso(iso){const p=periodFor(iso);return p?p.TH:null;}
-function weekForIso(iso){const p=periodFor(iso);return p?p.WEEK:null;}
+/* Date-specific override: on a date listed in MODULAR_TOPICS, the dedicated
+   Modular Teaching circular's own 2:00 PM start (not the generic grid's
+   2:15 PM) is authoritative for that one weekday's Modular Teaching entry.
+   Only the FIRST modular entry in the day (earliest start) is pushed to
+   14 — in WEEK's split rows that's just the 14:15-15:15 row, leaving the
+   15:15-16:15 row untouched, since only the class's start moved earlier. */
+function applyModularStartOverride(daySlots,iso){
+  const md=modularFor(iso);
+  if(!md||!daySlots)return daySlots;
+  let done=false;
+  return daySlots.map(p=>{
+    const isModular=p.type==="modular"||p.vt==="modular";
+    if(isModular&&!done){done=true;return Object.assign({},p,{s:14});}
+    return p;
+  });
+}
+function thForIso(iso){
+  const p=periodFor(iso);if(!p)return null;
+  const dow=pd(iso).getDay();
+  if(!modularFor(iso)||!p.TH[dow])return p.TH;
+  return Object.assign({},p.TH,{[dow]:applyModularStartOverride(p.TH[dow],iso)});
+}
+function weekForIso(iso){
+  const p=periodFor(iso);if(!p)return null;
+  const dow=pd(iso).getDay();
+  if(!modularFor(iso)||!p.WEEK[dow])return p.WEEK;
+  return Object.assign({},p.WEEK,{[dow]:applyModularStartOverride(p.WEEK[dow],iso)});
+}
 
 /* ────────────────────────────────────────
    MODULAR TEACHING — per-date topic/department/venue/streaming.
@@ -628,11 +654,11 @@ function weekForIso(iso){const p=periodFor(iso);return p?p.WEEK:null;}
    dates it explicitly lists; 02.10.2026 (a Friday in this window) has
    no block in the source and gets none here either — see audit for
    why that date has no modular content (unconfirmed non-teaching day).
-   MODULAR_DOC_TIME is this document's own stated timing, shown
-   alongside the grid's 14:15-16:15 slot — see TH_SEP21 note on the
-   15-minute conflict between the two circulars.
+   This same table also drives thForIso()/weekForIso()'s 2:00 PM start
+   override (see applyModularStartOverride) — a date listed here is
+   exactly the set of dates the dedicated circular's 2:00 PM start
+   applies to; nothing else marks those 11 dates as special.
 ───────────────────────────────────────── */
-const MODULAR_DOC_TIME = "2:00 PM – 4:15 PM";
 const MODULAR_TOPICS = {
   "2026-09-21": {topic:"Pelvic Radiation Oncology",      dept:"Radiation Oncology", venue:"LH-4, Third Floor",  streaming:true},
   "2026-09-22": {topic:"Pelvic Radiation Oncology",      dept:"Radiation Oncology", venue:"LH-4, Third Floor",  streaming:true},
@@ -647,7 +673,7 @@ const MODULAR_TOPICS = {
   "2026-10-16": {topic:"Falls in Geriatric Population",  dept:"Geriatric Medicine", venue:"LH-4, Third Floor",  streaming:true},
 };
 function modularFor(iso){return MODULAR_TOPICS[iso]||null;}
-function modularDetailHtml(iso,slotS,slotE){
+function modularDetailHtml(iso){
   const md=modularFor(iso);
   if(!md){
     /* The Theory Schedule circular puts Modular Teaching in this slot regardless
@@ -657,9 +683,8 @@ function modularDetailHtml(iso,slotS,slotE){
        imply a holiday/cancellation (neither is confirmed by any source). */
     return`<div class="note" style="margin:-4px 0 8px">No topic/department/venue supplied for this date's Modular Teaching session in the Modular Teaching circular (18.09.2026). The slot itself still runs per the Theory Schedule circular.</div>`;
   }
-  const stream=md.streaming?" · 📡 Streamed live from JIPMER Puducherry":"";
-  return`<div class="sm" style="margin:-4px 0 2px">${md.topic} · ${md.dept} · ${md.venue}${stream}</div>
-    <div class="note" style="margin:0 0 8px">Modular Teaching circular (18.09.2026) states this session as <b>${MODULAR_DOC_TIME}</b>; the Theory Schedule circular's grid slot here is ${shr(slotS,slotE)}. Both official, shown as given.</div>`;
+  const stream=md.streaming?" · 📡 Online Streaming from JIPMER Puducherry":"";
+  return`<div class="sm" style="margin:-4px 0 8px">${md.topic} · ${md.dept} · ${md.venue}${stream}</div>`;
 }
 
 /* ────────────────────────────────────────

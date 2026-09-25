@@ -26,7 +26,7 @@ vm.createContext(sandbox);
 vm.runInContext(
   appSrc +
     `\nglobalThis.__T__ = { periodFor, thForIso, weekForIso, TH_SEP21, WEEK_SEP21,
-      THEORY_PERIODS, pd, isoDate, fh, shr, h12parts };`,
+      THEORY_PERIODS, pd, isoDate, fh, shr, h12parts, modularFor, MODULAR_TOPICS };`,
   sandbox
 );
 const T = sandbox.__T__;
@@ -164,6 +164,112 @@ ok(allSubs.has("ENT"), "ENT preserved");
 ok(allSubs.has("PSM"), "PSM preserved");
 ok(allSubs.has("FHAP"), "FHAP preserved");
 ok(allSubs.has("Modular Teaching"), "Modular Teaching preserved");
+
+/* ── 10. Modular Teaching circular (18.09.2026): 11 date-specific overrides ── */
+const MODULAR_DATES = {
+  "2026-09-21": { weekday: 1, topic: "Pelvic Radiation Oncology",     dept: "Radiation Oncology", venue: "LH-4, Third Floor",  streaming: true },
+  "2026-09-22": { weekday: 2, topic: "Pelvic Radiation Oncology",     dept: "Radiation Oncology", venue: "LH-4, Third Floor",  streaming: true },
+  "2026-09-25": { weekday: 5, topic: "Pelvic Radiation Oncology",     dept: "Radiation Oncology", venue: "LH-4, Third Floor",  streaming: true },
+  "2026-09-28": { weekday: 1, topic: "Transfusion Medicine",          dept: "Pathology",          venue: "LH-5, Fourth Floor", streaming: false },
+  "2026-09-29": { weekday: 2, topic: "Transfusion Medicine",          dept: "Pathology",          venue: "LH-5, Fourth Floor", streaming: false },
+  "2026-10-05": { weekday: 1, topic: "Basics of Oncology",            dept: "Medical Oncology",   venue: "LH-4, Third Floor",  streaming: true },
+  "2026-10-06": { weekday: 2, topic: "Basics of Oncology",            dept: "Medical Oncology",   venue: "LH-4, Third Floor",  streaming: true },
+  "2026-10-09": { weekday: 5, topic: "Basics of Oncology",            dept: "Medical Oncology",   venue: "LH-4, Third Floor",  streaming: true },
+  "2026-10-12": { weekday: 1, topic: "Falls in Geriatric Population", dept: "Geriatric Medicine", venue: "LH-4, Third Floor",  streaming: true },
+  "2026-10-13": { weekday: 2, topic: "Falls in Geriatric Population", dept: "Geriatric Medicine", venue: "LH-4, Third Floor",  streaming: true },
+  "2026-10-16": { weekday: 5, topic: "Falls in Geriatric Population", dept: "Geriatric Medicine", venue: "LH-4, Third Floor",  streaming: true },
+};
+
+// Independently verify weekday for every listed date against the native calendar
+for (const iso in MODULAR_DATES) {
+  eq(dow(iso), MODULAR_DATES[iso].weekday, `${iso} weekday matches the calendar`);
+}
+
+for (const iso in MODULAR_DATES) {
+  const exp = MODULAR_DATES[iso];
+  const md = T.modularFor(iso);
+  ok(md, `${iso} has a MODULAR_TOPICS record`);
+  eq(md.topic, exp.topic, `${iso} topic`);
+  eq(md.dept, exp.dept, `${iso} department`);
+  eq(md.venue, exp.venue, `${iso} venue`);
+  eq(md.streaming, exp.streaming, `${iso} streaming flag`);
+
+  // effective (overridden) TH slot for this specific date
+  const TH = T.thForIso(iso);
+  const daySlots = TH[exp.weekday];
+  const modSlot = daySlots.find(s => s.type === "modular");
+  ok(modSlot, `${iso} has a modular TH slot`);
+  eq(modSlot.s, 14, `${iso} modular slot starts at 14 (2:00 PM), overriding the generic 2:15 PM`);
+  eq(modSlot.e, 16.25, `${iso} modular slot ends at 16.25 (4:15 PM)`);
+  eq(T.fh(modSlot.s), "2:00 PM", `${iso} formats as 2:00 PM`);
+  eq(T.fh(modSlot.e), "4:15 PM", `${iso} formats as 4:15 PM`);
+
+  // exactly one modular entry per day (no duplicate generic + specific event)
+  const modularEntries = daySlots.filter(s => s.type === "modular");
+  eq(modularEntries.length, 1, `${iso} has exactly one Modular Teaching entry, not a duplicate`);
+
+  // surrounding classes (Clinics/ENT-or-PSM/afternoon subject) are untouched
+  eq(daySlots.find(s => s.sub === "Clinics").s, 9, `${iso} Clinics still 9:00-12:00`);
+  const noonSub = exp.weekday === 2 ? "PSM" : "ENT";
+  ok(daySlots.some(s => s.sub === noonSub && s.s === 12 && s.e === 13), `${iso} 12:00-13:00 ${noonSub} unchanged`);
+  const lateSub = { 1: "Medicine", 2: "Dermatology", 5: "Ophthalmology" }[exp.weekday];
+  ok(daySlots.some(s => s.sub === lateSub && s.s === 16.25 && s.e === 17.25), `${iso} 16:15-17:15 ${lateSub} unchanged`);
+
+  // the WEEK grid's override is likewise scoped to this date, not the whole weekday
+  const WK = T.weekForIso(iso);
+  const weekModular = WK[exp.weekday].filter(s => s.vt === "modular");
+  eq(weekModular.length, 2, `${iso} WEEK grid still has 2 modular rows (split, unchanged count)`);
+  eq(weekModular[0].s, 14, `${iso} WEEK grid's first modular row starts at 14 (2:00 PM)`);
+  eq(weekModular[1].s, 15.25, `${iso} WEEK grid's second modular row still starts at 15.25 (3:15 PM)`);
+}
+
+// count validation: exactly 11 records, grouped exactly as specified
+eq(Object.keys(T.MODULAR_TOPICS).length, 11, "Exactly 11 modular-topic records exist");
+function topicCount(name) { return Object.values(T.MODULAR_TOPICS).filter(m => m.topic === name).length; }
+eq(topicCount("Pelvic Radiation Oncology"), 3, "Pelvic Radiation Oncology = 3 dates");
+eq(topicCount("Transfusion Medicine"), 2, "Transfusion Medicine = 2 dates");
+eq(topicCount("Basics of Oncology"), 3, "Basics of Oncology = 3 dates");
+eq(topicCount("Falls in Geriatric Population"), 3, "Falls in Geriatric Population = 3 dates");
+
+/* ── 11. range validation: the override never leaks outside its 11 dates ── */
+const NOT_MODULAR = [
+  "2026-09-20","2026-09-23","2026-09-24","2026-09-26","2026-09-27",
+  "2026-09-30","2026-10-02","2026-10-07","2026-10-10","2026-10-14","2026-10-15","2026-10-17",
+];
+NOT_MODULAR.forEach(iso => {
+  ok(!T.modularFor(iso), `${iso} has no modular-topic record (not one of the 11 dates)`);
+});
+// 02 Oct 2026 is a Friday inside the window with a generic (unoverridden) Modular Teaching slot
+const oct02TH = T.thForIso("2026-10-02");
+eq(dow("2026-10-02"), 5, "02 Oct 2026 is a Friday");
+const oct02Mod = oct02TH[5].find(s => s.type === "modular");
+eq(oct02Mod.s, 14.25, "02 Oct 2026 keeps the generic 2:15 PM start (not in the modular circular)");
+eq(oct02Mod.e, 16.25, "02 Oct 2026 modular slot still ends 4:15 PM");
+
+/* ── 12. unaffected weekdays around the modular dates stay exactly as before ── */
+const UNAFFECTED = [
+  ["2026-09-23","FHAP"],["2026-09-24",null],["2026-09-30","FHAP"],["2026-10-01",null],
+  ["2026-10-07","FHAP"],["2026-10-08",null],["2026-10-14","FHAP"],["2026-10-15",null],
+];
+UNAFFECTED.forEach(([iso, fhapExpected]) => {
+  const wd = dow(iso);
+  const TH = T.thForIso(iso);
+  if (fhapExpected) {
+    ok(TH[wd].some(s => s.sub === "FHAP" && s.s === 14.25 && s.e === 16.25), `${iso} FHAP unchanged (14:15-16:15)`);
+  } else {
+    // Thursday: Surgery/Surgery/OBG/Ophthalmology unchanged
+    ok(TH[wd].some(s => s.sub === "Surgery" && s.s === 14.25 && s.e === 15.25), `${iso} Thursday Surgery period unchanged`);
+    ok(TH[wd].some(s => s.sub === "OBG" && s.s === 15.25 && s.e === 16.25), `${iso} Thursday OBG unchanged`);
+    ok(TH[wd].some(s => s.sub === "Ophthalmology" && s.s === 16.25 && s.e === 17.25), `${iso} Thursday Ophthalmology unchanged`);
+  }
+});
+["2026-09-26","2026-10-10","2026-10-17"].forEach(iso => {
+  const wd = dow(iso);
+  eq(wd, 6, `${iso} is Saturday`);
+  const TH = T.thForIso(iso);
+  ok(TH[wd].some(s => s.sub === "OBG" && s.s === 12 && s.e === 13), `${iso} Saturday OBG unchanged`);
+  ok(!TH[wd].some(s => s.s >= 14.25), `${iso} Saturday still has nothing after 13:00`);
+});
 
 /* ── summary ── */
 console.log(`\n${pass} passed, ${fail} failed`);
