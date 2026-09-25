@@ -647,7 +647,6 @@ const MODULAR_TOPICS = {
   "2026-10-16": {topic:"Falls in Geriatric Population",  dept:"Geriatric Medicine", venue:"LH-4, Third Floor",  streaming:true},
 };
 function modularFor(iso){return MODULAR_TOPICS[iso]||null;}
-function isModularSub(sub){return sub==="Modular Teaching"||sub==="Modular teaching";}
 function modularDetailHtml(iso,slotS,slotE){
   const md=modularFor(iso);
   if(!md){
@@ -944,7 +943,7 @@ function rNow(n){
     const mkLbl=mkSt==="present"?"✓ Present":mkSt==="absent"?"✗ Absent":mkSt==="cancelled"?"— Cancelled":"Tap to mark";
     const mkCol=mkSt==="present"?"var(--green-tx)":mkSt==="absent"?"var(--red-tx)":mkSt==="cancelled"?"var(--amber-tx)":"var(--muted)";
     const isClin=active.sub==="Clinics";
-    const isMod=isModularSub(active.sub);
+    const isMod=active.type==="modular";
     const dept=isClin?clinicDeptFor(iso):null;
     const noDept=dept==="Unassigned";
     const tp=(isClin||isMod)?null:topicFor(iso,active.sub);
@@ -982,7 +981,7 @@ function rNow(n){
     const nxtSt=nxtMkable?markStateForTH(iso,dow,next):"none";
     const nxtLbl=nxtSt==="present"?"✓ Present":nxtSt==="absent"?"✗ Absent":nxtSt==="cancelled"?"— Cancelled":"";
     const nxtCol=nxtSt==="present"?"var(--green-tx)":nxtSt==="absent"?"var(--red-tx)":nxtSt==="cancelled"?"var(--amber-tx)":"var(--muted)";
-    const nxtTp=(next.sub==="Clinics"||isModularSub(next.sub))?null:topicFor(iso,next.sub);
+    const nxtTp=(next.sub==="Clinics"||next.type==="modular")?null:topicFor(iso,next.sub);
     html+=card("UP NEXT",`<div class="row">
       <div>
         <div class="med">${next.sub}</div>
@@ -1051,7 +1050,7 @@ function rToday(n){
     const mkLbl=mkSt==="present"?"✓ Present":mkSt==="absent"?"✗ Absent":mkSt==="cancelled"?"— Cancelled":"";
     const mkCol=mkSt==="present"?"var(--green-tx)":mkSt==="absent"?"var(--red-tx)":mkSt==="cancelled"?"var(--amber-tx)":"var(--muted)";
     const isClin=sl.sub==="Clinics";
-    const isMod=isModularSub(sl.sub);
+    const isMod=sl.type==="modular";
     const dept=isClin?clinicDeptFor(iso):null;
     const rowLbl=mkLbl||(isClin?"Tap to mark today's clinic":"");
     const showRow=mkable&&(mkLbl||isClin);
